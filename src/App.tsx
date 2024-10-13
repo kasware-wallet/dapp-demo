@@ -642,10 +642,130 @@ function BatchTransferKRC20V2({ batchTransferProgress }: { batchTransferProgress
         tick: 'kasper',
         to: 'kaspatest:qz45kwyswwpsedqqv3lm3hq3de4c5uwp0cwqnwn74medm4uxzmesvksw9fuyx',
         amount: 3.11
+      },
+      {
+        tick: 'ghoada',
+        to: 'kaspatest:qz9dvce5d92czd6t6msm5km3p5m9dyxh5av9xkzjl6pz8hhvc4q7wqg8njjyp',
+        amount: 1.11
+      },
+      {
+        tick: 'nacho',
+        to: 'kaspatest:qz45kwyswwpsedqqv3lm3hq3de4c5uwp0cwqnwn74medm4uxzmesvksw9fuyx',
+        amount: 2.11
+      },
+      {
+        tick: 'xxxx',
+        to: 'kaspatest:qz9dvce5d92czd6t6msm5km3p5m9dyxh5av9xkzjl6pz8hhvc4q7wqg8njjyp',
+        amount: 8.11
+      },
+      {
+        tick: 'tesla',
+        to: 'kaspatest:qz45kwyswwpsedqqv3lm3hq3de4c5uwp0cwqnwn74medm4uxzmesvksw9fuyx',
+        amount: 2.11
+      },
+      {
+        tick: 'sompi',
+        to: 'kaspatest:qz9dvce5d92czd6t6msm5km3p5m9dyxh5av9xkzjl6pz8hhvc4q7wqg8njjyp',
+        amount: 9.11
+      },
+      {
+        tick: 'kasper',
+        to: 'kaspatest:qz45kwyswwpsedqqv3lm3hq3de4c5uwp0cwqnwn74medm4uxzmesvksw9fuyx',
+        amount: 3.11
+      },
+      {
+        tick: 'ghoada',
+        to: 'kaspatest:qz9dvce5d92czd6t6msm5km3p5m9dyxh5av9xkzjl6pz8hhvc4q7wqg8njjyp',
+        amount: 1.11
+      },
+      {
+        tick: 'nacho',
+        to: 'kaspatest:qz45kwyswwpsedqqv3lm3hq3de4c5uwp0cwqnwn74medm4uxzmesvksw9fuyx',
+        amount: 2.11
+      },
+      {
+        tick: 'xxxx',
+        to: 'kaspatest:qz9dvce5d92czd6t6msm5km3p5m9dyxh5av9xkzjl6pz8hhvc4q7wqg8njjyp',
+        amount: 8.11
+      },
+      {
+        tick: 'tesla',
+        to: 'kaspatest:qz45kwyswwpsedqqv3lm3hq3de4c5uwp0cwqnwn74medm4uxzmesvksw9fuyx',
+        amount: 2.11
+      },
+      {
+        tick: 'sompi',
+        to: 'kaspatest:qz9dvce5d92czd6t6msm5km3p5m9dyxh5av9xkzjl6pz8hhvc4q7wqg8njjyp',
+        amount: 9.11
+      },
+      {
+        tick: 'kasper',
+        to: 'kaspatest:qz45kwyswwpsedqqv3lm3hq3de4c5uwp0cwqnwn74medm4uxzmesvksw9fuyx',
+        amount: 3.11
+      },
+      {
+        tick: 'ghoada',
+        to: 'kaspatest:qz9dvce5d92czd6t6msm5km3p5m9dyxh5av9xkzjl6pz8hhvc4q7wqg8njjyp',
+        amount: 1.11
+      },
+      {
+        tick: 'nacho',
+        to: 'kaspatest:qz45kwyswwpsedqqv3lm3hq3de4c5uwp0cwqnwn74medm4uxzmesvksw9fuyx',
+        amount: 2.11
+      },
+      {
+        tick: 'xxxx',
+        to: 'kaspatest:qz9dvce5d92czd6t6msm5km3p5m9dyxh5av9xkzjl6pz8hhvc4q7wqg8njjyp',
+        amount: 8.11
+      },
+      {
+        tick: 'tesla',
+        to: 'kaspatest:qz45kwyswwpsedqqv3lm3hq3de4c5uwp0cwqnwn74medm4uxzmesvksw9fuyx',
+        amount: 2.11
+      },
+      {
+        tick: 'sompi',
+        to: 'kaspatest:qz9dvce5d92czd6t6msm5km3p5m9dyxh5av9xkzjl6pz8hhvc4q7wqg8njjyp',
+        amount: 9.11
+      },
+      {
+        tick: 'kasper',
+        to: 'kaspatest:qz45kwyswwpsedqqv3lm3hq3de4c5uwp0cwqnwn74medm4uxzmesvksw9fuyx',
+        amount: 3.11
+      },
+      {
+        tick: 'ghoada',
+        to: 'kaspatest:qz9dvce5d92czd6t6msm5km3p5m9dyxh5av9xkzjl6pz8hhvc4q7wqg8njjyp',
+        amount: 1.11
+      },
+      {
+        tick: 'nacho',
+        to: 'kaspatest:qz45kwyswwpsedqqv3lm3hq3de4c5uwp0cwqnwn74medm4uxzmesvksw9fuyx',
+        amount: 2.11
+      },
+      {
+        tick: 'xxxx',
+        to: 'kaspatest:qz9dvce5d92czd6t6msm5km3p5m9dyxh5av9xkzjl6pz8hhvc4q7wqg8njjyp',
+        amount: 8.11
+      },
+      {
+        tick: 'tesla',
+        to: 'kaspatest:qz45kwyswwpsedqqv3lm3hq3de4c5uwp0cwqnwn74medm4uxzmesvksw9fuyx',
+        amount: 2.11
+      },
+      {
+        tick: 'sompi',
+        to: 'kaspatest:qz9dvce5d92czd6t6msm5km3p5m9dyxh5av9xkzjl6pz8hhvc4q7wqg8njjyp',
+        amount: 9.11
+      },
+      {
+        tick: 'kasper',
+        to: 'kaspatest:qz45kwyswwpsedqqv3lm3hq3de4c5uwp0cwqnwn74medm4uxzmesvksw9fuyx',
+        amount: 3.11
       }
     ];
     // kas unit
-    const priorityFee = 0.1;
+    const priorityFee = 0;
     const txid = await (window as any).kasware.krc20BatchTransferTransaction(list, priorityFee);
     setTxid(txid);
   };
@@ -670,6 +790,13 @@ function BatchTransferKRC20V2({ batchTransferProgress }: { batchTransferProgress
           }
         }}>
         Batch Transfer KRC20 Token V2
+      </Button>
+      <Button
+        style={{ marginTop: 10 }}
+        onClick={async () => {
+          await (window as any).kasware.cancelKRC20BatchTransfer();
+        }}>
+        Cancel
       </Button>
     </Card>
   );
