@@ -39,6 +39,7 @@ function App() {
     total: 0
   });
   const [network, setNetwork] = useState('kaspa_mainnet');
+  const [batchTransferProgress, setBatchTransferProgress] = useState<number>(0);
 
   const getBasicInfo = async () => {
     const kasware = (window as any).kasware;
@@ -86,6 +87,7 @@ function App() {
   };
   const handleKRC20BatchTransferChangedChanged = (res: BatchTransferRes) => {
     console.log('res', res.index, res.status, res.txId?.revealId);
+    setBatchTransferProgress(res.index + 1);
   };
 
   useEffect(() => {
@@ -196,7 +198,7 @@ function App() {
             <MintKRC20 />
             <TransferKRC20 />
             <BatchTransferKRC20 />
-            <BatchTransferKRC20V2 />
+            <BatchTransferKRC20V2 batchTransferProgress={batchTransferProgress} />
           </div>
         ) : (
           <div>
@@ -606,20 +608,40 @@ function BatchTransferKRC20() {
     </Card>
   );
 }
-function BatchTransferKRC20V2() {
+function BatchTransferKRC20V2({ batchTransferProgress }: { batchTransferProgress: number }) {
   const [txid, setTxid] = useState('');
 
   const handleBatchTransfer2 = async () => {
     const list = [
       {
-        tick: 'TESLA',
+        tick: 'ghoada',
         to: 'kaspatest:qz9dvce5d92czd6t6msm5km3p5m9dyxh5av9xkzjl6pz8hhvc4q7wqg8njjyp',
         amount: 1.11
       },
       {
-        tick: 'TESLA',
+        tick: 'nacho',
         to: 'kaspatest:qz45kwyswwpsedqqv3lm3hq3de4c5uwp0cwqnwn74medm4uxzmesvksw9fuyx',
         amount: 2.11
+      },
+      {
+        tick: 'xxxx',
+        to: 'kaspatest:qz9dvce5d92czd6t6msm5km3p5m9dyxh5av9xkzjl6pz8hhvc4q7wqg8njjyp',
+        amount: 8.11
+      },
+      {
+        tick: 'tesla',
+        to: 'kaspatest:qz45kwyswwpsedqqv3lm3hq3de4c5uwp0cwqnwn74medm4uxzmesvksw9fuyx',
+        amount: 2.11
+      },
+      {
+        tick: 'sompi',
+        to: 'kaspatest:qz9dvce5d92czd6t6msm5km3p5m9dyxh5av9xkzjl6pz8hhvc4q7wqg8njjyp',
+        amount: 9.11
+      },
+      {
+        tick: 'kasper',
+        to: 'kaspatest:qz45kwyswwpsedqqv3lm3hq3de4c5uwp0cwqnwn74medm4uxzmesvksw9fuyx',
+        amount: 3.11
       }
     ];
     // kas unit
@@ -629,6 +651,10 @@ function BatchTransferKRC20V2() {
   };
   return (
     <Card size="small" title="Batch Transfer KRC20 V2" style={{ width: 300, margin: 10 }}>
+      <div style={{ textAlign: 'left', marginTop: 10 }}>
+        <div style={{ fontWeight: 'bold' }}>progress:</div>
+        <div style={{ wordWrap: 'break-word' }}>{batchTransferProgress}</div>
+      </div>
       <div style={{ textAlign: 'left', marginTop: 10 }}>
         <div style={{ fontWeight: 'bold' }}>txid:</div>
         <div style={{ wordWrap: 'break-word' }}>{txid}</div>
