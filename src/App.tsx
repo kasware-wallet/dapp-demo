@@ -9,22 +9,22 @@ enum TxType {
   SIGN_KRC20_TRANSFER
 }
 
-interface IKRC20Balance {
-  balance: string;
-  dec: string;
-  locked: string;
-  opScoreMod: string;
-  tick: string;
-}
-
 interface BatchTransferRes {
-  index: number;
-  tick: string;
-  to: string;
-  amount: number;
-  status: 'success' | 'failed';
-  errorMsg: string;
-  txId: { commitId: string; revealId: string } | undefined;
+  index?: number;
+  tick?: string;
+  to?: string;
+  amount?: number;
+  status:
+    | 'success'
+    | 'failed'
+    | 'preparing 20%'
+    | 'preparing 40%'
+    | 'preparing 60%'
+    | 'preparing 80%'
+    | 'preparing 100%';
+
+  errorMsg?: string;
+  txId?: { commitId: string; revealId: string };
 }
 
 function App() {
@@ -39,7 +39,7 @@ function App() {
     total: 0
   });
   const [network, setNetwork] = useState('kaspa_mainnet');
-  const [batchTransferProgress, setBatchTransferProgress] = useState<number>(0);
+  const [batchTransferProgress, setBatchTransferProgress] = useState<BatchTransferRes | undefined>(undefined);
 
   const getBasicInfo = async () => {
     const kasware = (window as any).kasware;
@@ -85,9 +85,11 @@ function App() {
     setNetwork(network);
     getBasicInfo();
   };
-  const handleKRC20BatchTransferChangedChanged = (res: BatchTransferRes) => {
-    console.log('res', res.index, res.status, res.txId?.revealId);
-    setBatchTransferProgress(res.index + 1);
+  const handleKRC20BatchTransferChangedChanged = (ress: BatchTransferRes[]) => {
+    ress.forEach((res) => {
+      console.log('result', res.status,res?.index, res?.txId?.revealId, res?.errorMsg);
+      setBatchTransferProgress(res);
+    });
   };
 
   useEffect(() => {
@@ -197,7 +199,6 @@ function App() {
             <DeployKRC20 />
             <MintKRC20 />
             <TransferKRC20 />
-            <BatchTransferKRC20 />
             <BatchTransferKRC20V2 batchTransferProgress={batchTransferProgress} />
           </div>
         ) : (
@@ -530,254 +531,259 @@ function TransferKRC20() {
   );
 }
 
-function BatchTransferKRC20() {
-  // let transferJsonString = '{\"p\":\"KRC-20\",\"op\":\"transfer\",\"tick\":\"RBMV\",\"amt\":\"50000000000\"}'
-  const [ticker, setTicker] = useState('WARE');
-  const [amount, setAmount] = useState(1.135);
-  // const [toAddress, setToAddress] = useState("kaspatest:qz9dvce5d92czd6t6msm5km3p5m9dyxh5av9xkzjl6pz8hhvc4q7wqg8njjyp");
-  const toAddrs = [
-    'kaspatest:qz5gzxumm4wt6c4c9zt5gqfsh76gg9f0qr7gfztmfx7nwn8xz75360tmxsmy3',
-    'kaspatest:qqlze5349xuftvskcmz2s5ggf2fu97f9ep0u9pmjmsj6zv4c8c9y7p2ypa26s',
-    // "kaspatest:qp2vyqkuanrqn38362wa5ja93e3se4cv3zqa8yhjalrj24n3g2t52kgq32m8c",
-    'kaspatest:qz45kwyswwpsedqqv3lm3hq3de4c5uwp0cwqnwn74medm4uxzmesvksw9fuyx',
-    'kaspatest:qrpygfgeq45h68wz5pk4rtay02w7fwlhax09x4rsqceqq6s3mz6uctlh3a695'
-  ];
-
-  const [txid, setTxid] = useState('');
-  const handleBatchTransfer = async () => {
-    const deployOjj = {
-      p: 'KRC-20',
-      op: 'transfer',
-      tick: ticker.toUpperCase(),
-      amt: (amount * 100000000).toString()
-    };
-    const jsonStr = JSON.stringify(deployOjj);
-    console.log(jsonStr);
-    // kas unit
-    const priorityFee = 0.1;
-    const txid = await (window as any).kasware.signKRC20BatchTransferTransaction(
-      jsonStr,
-      TxType.SIGN_KRC20_TRANSFER,
-      toAddrs,
-      priorityFee
-    );
-    setTxid(txid);
-  };
-  return (
-    <Card size="small" title="Batch Transfer KRC20" style={{ width: 300, margin: 10 }}>
-      <div style={{ textAlign: 'left', marginTop: 10 }}>
-        <div style={{ fontWeight: 'bold' }}>Receiver Address:</div>
-        {/* <Input
-          defaultValue={toAddress}
-          onChange={(e) => {
-            setToAddress(e.target.value);
-          }}
-        ></Input> */}
-      </div>
-      <div style={{ textAlign: 'left', marginTop: 10 }}>
-        <div style={{ fontWeight: 'bold' }}>Ticker:</div>
-        <Input
-          defaultValue={ticker}
-          onChange={(e) => {
-            setTicker(e.target.value);
-          }}></Input>
-      </div>
-      <div style={{ textAlign: 'left', marginTop: 10 }}>
-        <div style={{ fontWeight: 'bold' }}>Amount:</div>
-        <Input
-          defaultValue={amount}
-          onChange={(e) => {
-            setAmount(Number(e.target.value));
-          }}></Input>
-      </div>
-      <div style={{ textAlign: 'left', marginTop: 10 }}>
-        <div style={{ fontWeight: 'bold' }}>txid:</div>
-        <div style={{ wordWrap: 'break-word' }}>{txid}</div>
-      </div>
-      <Button
-        style={{ marginTop: 10 }}
-        onClick={async () => {
-          try {
-            await handleBatchTransfer();
-          } catch (e) {
-            setTxid((e as any).message);
-          }
-        }}>
-        Batch Transfer KRC20 Token
-      </Button>
-    </Card>
-  );
-}
-function BatchTransferKRC20V2({ batchTransferProgress }: { batchTransferProgress: number }) {
+function BatchTransferKRC20V2({ batchTransferProgress }: { batchTransferProgress: BatchTransferRes | undefined }) {
   const [txid, setTxid] = useState('');
 
   const handleBatchTransfer2 = async () => {
-    const list = [
+
+    let list = [
       {
-        tick: 'ghoada',
-        to: 'kaspatest:qz9dvce5d92czd6t6msm5km3p5m9dyxh5av9xkzjl6pz8hhvc4q7wqg8njjyp',
-        amount: 1.11
-      },
-      {
-        tick: 'nacho',
+        tick: 'tesla',
         to: 'kaspatest:qz45kwyswwpsedqqv3lm3hq3de4c5uwp0cwqnwn74medm4uxzmesvksw9fuyx',
-        amount: 2.11
-      },
-      {
-        tick: 'xxxx',
-        to: 'kaspatest:qz9dvce5d92czd6t6msm5km3p5m9dyxh5av9xkzjl6pz8hhvc4q7wqg8njjyp',
-        amount: 8.11
+        amount: 0.1
       },
       {
         tick: 'tesla',
         to: 'kaspatest:qz45kwyswwpsedqqv3lm3hq3de4c5uwp0cwqnwn74medm4uxzmesvksw9fuyx',
-        amount: 2.11
-      },
-      {
-        tick: 'sompi',
-        to: 'kaspatest:qz9dvce5d92czd6t6msm5km3p5m9dyxh5av9xkzjl6pz8hhvc4q7wqg8njjyp',
-        amount: 9.11
-      },
-      {
-        tick: 'kasper',
-        to: 'kaspatest:qz45kwyswwpsedqqv3lm3hq3de4c5uwp0cwqnwn74medm4uxzmesvksw9fuyx',
-        amount: 3.11
-      },
-      {
-        tick: 'ghoada',
-        to: 'kaspatest:qz9dvce5d92czd6t6msm5km3p5m9dyxh5av9xkzjl6pz8hhvc4q7wqg8njjyp',
-        amount: 1.11
-      },
-      {
-        tick: 'nacho',
-        to: 'kaspatest:qz45kwyswwpsedqqv3lm3hq3de4c5uwp0cwqnwn74medm4uxzmesvksw9fuyx',
-        amount: 2.11
-      },
-      {
-        tick: 'xxxx',
-        to: 'kaspatest:qz9dvce5d92czd6t6msm5km3p5m9dyxh5av9xkzjl6pz8hhvc4q7wqg8njjyp',
-        amount: 8.11
+        amount: 0.2
       },
       {
         tick: 'tesla',
         to: 'kaspatest:qz45kwyswwpsedqqv3lm3hq3de4c5uwp0cwqnwn74medm4uxzmesvksw9fuyx',
-        amount: 2.11
-      },
-      {
-        tick: 'sompi',
-        to: 'kaspatest:qz9dvce5d92czd6t6msm5km3p5m9dyxh5av9xkzjl6pz8hhvc4q7wqg8njjyp',
-        amount: 9.11
-      },
-      {
-        tick: 'kasper',
-        to: 'kaspatest:qz45kwyswwpsedqqv3lm3hq3de4c5uwp0cwqnwn74medm4uxzmesvksw9fuyx',
-        amount: 3.11
-      },
-      {
-        tick: 'ghoada',
-        to: 'kaspatest:qz9dvce5d92czd6t6msm5km3p5m9dyxh5av9xkzjl6pz8hhvc4q7wqg8njjyp',
-        amount: 1.11
-      },
-      {
-        tick: 'nacho',
-        to: 'kaspatest:qz45kwyswwpsedqqv3lm3hq3de4c5uwp0cwqnwn74medm4uxzmesvksw9fuyx',
-        amount: 2.11
-      },
-      {
-        tick: 'xxxx',
-        to: 'kaspatest:qz9dvce5d92czd6t6msm5km3p5m9dyxh5av9xkzjl6pz8hhvc4q7wqg8njjyp',
-        amount: 8.11
+        amount: 0.3
       },
       {
         tick: 'tesla',
         to: 'kaspatest:qz45kwyswwpsedqqv3lm3hq3de4c5uwp0cwqnwn74medm4uxzmesvksw9fuyx',
-        amount: 2.11
-      },
-      {
-        tick: 'sompi',
-        to: 'kaspatest:qz9dvce5d92czd6t6msm5km3p5m9dyxh5av9xkzjl6pz8hhvc4q7wqg8njjyp',
-        amount: 9.11
-      },
-      {
-        tick: 'kasper',
-        to: 'kaspatest:qz45kwyswwpsedqqv3lm3hq3de4c5uwp0cwqnwn74medm4uxzmesvksw9fuyx',
-        amount: 3.11
-      },
-      {
-        tick: 'ghoada',
-        to: 'kaspatest:qz9dvce5d92czd6t6msm5km3p5m9dyxh5av9xkzjl6pz8hhvc4q7wqg8njjyp',
-        amount: 1.11
-      },
-      {
-        tick: 'nacho',
-        to: 'kaspatest:qz45kwyswwpsedqqv3lm3hq3de4c5uwp0cwqnwn74medm4uxzmesvksw9fuyx',
-        amount: 2.11
-      },
-      {
-        tick: 'xxxx',
-        to: 'kaspatest:qz9dvce5d92czd6t6msm5km3p5m9dyxh5av9xkzjl6pz8hhvc4q7wqg8njjyp',
-        amount: 8.11
+        amount: 0.4
       },
       {
         tick: 'tesla',
         to: 'kaspatest:qz45kwyswwpsedqqv3lm3hq3de4c5uwp0cwqnwn74medm4uxzmesvksw9fuyx',
-        amount: 2.11
-      },
-      {
-        tick: 'sompi',
-        to: 'kaspatest:qz9dvce5d92czd6t6msm5km3p5m9dyxh5av9xkzjl6pz8hhvc4q7wqg8njjyp',
-        amount: 9.11
-      },
-      {
-        tick: 'kasper',
-        to: 'kaspatest:qz45kwyswwpsedqqv3lm3hq3de4c5uwp0cwqnwn74medm4uxzmesvksw9fuyx',
-        amount: 3.11
-      },
-      {
-        tick: 'ghoada',
-        to: 'kaspatest:qz9dvce5d92czd6t6msm5km3p5m9dyxh5av9xkzjl6pz8hhvc4q7wqg8njjyp',
-        amount: 1.11
-      },
-      {
-        tick: 'nacho',
-        to: 'kaspatest:qz45kwyswwpsedqqv3lm3hq3de4c5uwp0cwqnwn74medm4uxzmesvksw9fuyx',
-        amount: 2.11
-      },
-      {
-        tick: 'xxxx',
-        to: 'kaspatest:qz9dvce5d92czd6t6msm5km3p5m9dyxh5av9xkzjl6pz8hhvc4q7wqg8njjyp',
-        amount: 8.11
+        amount: 0.5
       },
       {
         tick: 'tesla',
         to: 'kaspatest:qz45kwyswwpsedqqv3lm3hq3de4c5uwp0cwqnwn74medm4uxzmesvksw9fuyx',
-        amount: 2.11
+        amount: 0.6
       },
       {
-        tick: 'sompi',
-        to: 'kaspatest:qz9dvce5d92czd6t6msm5km3p5m9dyxh5av9xkzjl6pz8hhvc4q7wqg8njjyp',
-        amount: 9.11
-      },
-      {
-        tick: 'kasper',
+        tick: 'tesla',
         to: 'kaspatest:qz45kwyswwpsedqqv3lm3hq3de4c5uwp0cwqnwn74medm4uxzmesvksw9fuyx',
-        amount: 3.11
+        amount: 0.7
+      },
+      {
+        tick: 'tesla',
+        to: 'kaspatest:qz45kwyswwpsedqqv3lm3hq3de4c5uwp0cwqnwn74medm4uxzmesvksw9fuyx',
+        amount: 0.8
+      },
+      {
+        tick: 'tesla',
+        to: 'kaspatest:qz45kwyswwpsedqqv3lm3hq3de4c5uwp0cwqnwn74medm4uxzmesvksw9fuyx',
+        amount: 0.9
+      },
+      {
+        tick: 'tesla',
+        to: 'kaspatest:qz45kwyswwpsedqqv3lm3hq3de4c5uwp0cwqnwn74medm4uxzmesvksw9fuyx',
+        amount: 1
+      },
+      {
+        tick: 'tesla',
+        to: 'kaspatest:qz45kwyswwpsedqqv3lm3hq3de4c5uwp0cwqnwn74medm4uxzmesvksw9fuyx',
+        amount: 1.1
+      },
+      {
+        tick: 'tesla',
+        to: 'kaspatest:qz45kwyswwpsedqqv3lm3hq3de4c5uwp0cwqnwn74medm4uxzmesvksw9fuyx',
+        amount: 1.2
+      },
+      {
+        tick: 'tesla',
+        to: 'kaspatest:qz45kwyswwpsedqqv3lm3hq3de4c5uwp0cwqnwn74medm4uxzmesvksw9fuyx',
+        amount: 1.3
+      },
+      {
+        tick: 'tesla',
+        to: 'kaspatest:qz45kwyswwpsedqqv3lm3hq3de4c5uwp0cwqnwn74medm4uxzmesvksw9fuyx',
+        amount: 1.4
+      },
+      {
+        tick: 'tesla',
+        to: 'kaspatest:qz45kwyswwpsedqqv3lm3hq3de4c5uwp0cwqnwn74medm4uxzmesvksw9fuyx',
+        amount: 1.5
+      },
+      {
+        tick: 'tesla',
+        to: 'kaspatest:qz45kwyswwpsedqqv3lm3hq3de4c5uwp0cwqnwn74medm4uxzmesvksw9fuyx',
+        amount: 1.6
+      },
+      {
+        tick: 'tesla',
+        to: 'kaspatest:qz45kwyswwpsedqqv3lm3hq3de4c5uwp0cwqnwn74medm4uxzmesvksw9fuyx',
+        amount: 1.7
+      },
+      {
+        tick: 'tesla',
+        to: 'kaspatest:qz45kwyswwpsedqqv3lm3hq3de4c5uwp0cwqnwn74medm4uxzmesvksw9fuyx',
+        amount: 1.8
+      },
+      {
+        tick: 'tesla',
+        to: 'kaspatest:qz45kwyswwpsedqqv3lm3hq3de4c5uwp0cwqnwn74medm4uxzmesvksw9fuyx',
+        amount: 1.9
+      },
+      {
+        tick: 'tesla',
+        to: 'kaspatest:qz45kwyswwpsedqqv3lm3hq3de4c5uwp0cwqnwn74medm4uxzmesvksw9fuyx',
+        amount: 2
+      },
+      {
+        tick: 'tesla',
+        to: 'kaspatest:qz45kwyswwpsedqqv3lm3hq3de4c5uwp0cwqnwn74medm4uxzmesvksw9fuyx',
+        amount: 2.1
+      },
+      {
+        tick: 'tesla',
+        to: 'kaspatest:qz45kwyswwpsedqqv3lm3hq3de4c5uwp0cwqnwn74medm4uxzmesvksw9fuyx',
+        amount: 2.2
+      },
+      {
+        tick: 'tesla',
+        to: 'kaspatest:qz45kwyswwpsedqqv3lm3hq3de4c5uwp0cwqnwn74medm4uxzmesvksw9fuyx',
+        amount: 2.3
+      },
+      {
+        tick: 'tesla',
+        to: 'kaspatest:qz45kwyswwpsedqqv3lm3hq3de4c5uwp0cwqnwn74medm4uxzmesvksw9fuyx',
+        amount: 2.4
+      },
+      {
+        tick: 'tesla',
+        to: 'kaspatest:qz45kwyswwpsedqqv3lm3hq3de4c5uwp0cwqnwn74medm4uxzmesvksw9fuyx',
+        amount: 2.5
+      },
+      {
+        tick: 'tesla',
+        to: 'kaspatest:qz45kwyswwpsedqqv3lm3hq3de4c5uwp0cwqnwn74medm4uxzmesvksw9fuyx',
+        amount: 2.6
+      },
+      {
+        tick: 'tesla',
+        to: 'kaspatest:qz45kwyswwpsedqqv3lm3hq3de4c5uwp0cwqnwn74medm4uxzmesvksw9fuyx',
+        amount: 2.7
+      },
+      {
+        tick: 'tesla',
+        to: 'kaspatest:qz45kwyswwpsedqqv3lm3hq3de4c5uwp0cwqnwn74medm4uxzmesvksw9fuyx',
+        amount: 2.8
+      },
+      {
+        tick: 'tesla',
+        to: 'kaspatest:qz45kwyswwpsedqqv3lm3hq3de4c5uwp0cwqnwn74medm4uxzmesvksw9fuyx',
+        amount: 2.9
+      },
+      {
+        tick: 'tesla',
+        to: 'kaspatest:qz45kwyswwpsedqqv3lm3hq3de4c5uwp0cwqnwn74medm4uxzmesvksw9fuyx',
+        amount: 3
+      },
+      {
+        tick: 'tesla',
+        to: 'kaspatest:qz45kwyswwpsedqqv3lm3hq3de4c5uwp0cwqnwn74medm4uxzmesvksw9fuyx',
+        amount: 3.1
+      },
+      {
+        tick: 'tesla',
+        to: 'kaspatest:qz45kwyswwpsedqqv3lm3hq3de4c5uwp0cwqnwn74medm4uxzmesvksw9fuyx',
+        amount: 3.2
+      },
+      {
+        tick: 'tesla',
+        to: 'kaspatest:qz45kwyswwpsedqqv3lm3hq3de4c5uwp0cwqnwn74medm4uxzmesvksw9fuyx',
+        amount: 3.3
+      },
+      {
+        tick: 'tesla',
+        to: 'kaspatest:qz45kwyswwpsedqqv3lm3hq3de4c5uwp0cwqnwn74medm4uxzmesvksw9fuyx',
+        amount: 3.4
+      },
+      {
+        tick: 'tesla',
+        to: 'kaspatest:qz45kwyswwpsedqqv3lm3hq3de4c5uwp0cwqnwn74medm4uxzmesvksw9fuyx',
+        amount: 3.5
+      },
+      {
+        tick: 'tesla',
+        to: 'kaspatest:qz45kwyswwpsedqqv3lm3hq3de4c5uwp0cwqnwn74medm4uxzmesvksw9fuyx',
+        amount: 3.6
+      },
+      {
+        tick: 'tesla',
+        to: 'kaspatest:qz45kwyswwpsedqqv3lm3hq3de4c5uwp0cwqnwn74medm4uxzmesvksw9fuyx',
+        amount: 3.7
+      },
+      {
+        tick: 'tesla',
+        to: 'kaspatest:qz45kwyswwpsedqqv3lm3hq3de4c5uwp0cwqnwn74medm4uxzmesvksw9fuyx',
+        amount: 3.8
+      },
+      {
+        tick: 'tesla',
+        to: 'kaspatest:qz45kwyswwpsedqqv3lm3hq3de4c5uwp0cwqnwn74medm4uxzmesvksw9fuyx',
+        amount: 3.9
+      },
+      {
+        tick: 'tesla',
+        to: 'kaspatest:qz45kwyswwpsedqqv3lm3hq3de4c5uwp0cwqnwn74medm4uxzmesvksw9fuyx',
+        amount: 4
+      },
+      {
+        tick: 'tesla',
+        to: 'kaspatest:qz45kwyswwpsedqqv3lm3hq3de4c5uwp0cwqnwn74medm4uxzmesvksw9fuyx',
+        amount: 4.1
+      },
+      {
+        tick: 'tesla',
+        to: 'kaspatest:qz45kwyswwpsedqqv3lm3hq3de4c5uwp0cwqnwn74medm4uxzmesvksw9fuyx',
+        amount: 4.2
       }
     ];
-    // kas unit
-    const priorityFee = 0;
-    const txid = await (window as any).kasware.krc20BatchTransferTransaction(list, priorityFee);
-    setTxid(txid);
+
+    //  the kas balance should be larger than 30 kas in order to start batch transfer.
+    const result = await (window as any).kasware.krc20BatchTransferTransaction(list);
+    // the function above should work with handleKRC20BatchTransferChangedChanged event.
+    // krc20BatchTransferTransaction() is called, handleKRC20BatchTransferChangedChanged event will monitor activities and return any latest successful/failed result.
+    setTxid(result);
   };
   return (
     <Card size="small" title="Batch Transfer KRC20 V2" style={{ width: 300, margin: 10 }}>
       <div style={{ textAlign: 'left', marginTop: 10 }}>
-        <div style={{ fontWeight: 'bold' }}>progress:</div>
-        <div style={{ wordWrap: 'break-word' }}>{batchTransferProgress}</div>
+        <div style={{ fontWeight: 'bold' }}>status:</div>
+        <div style={{ wordWrap: 'break-word' }}>{batchTransferProgress?.status}</div>
       </div>
-      <div style={{ textAlign: 'left', marginTop: 10 }}>
-        <div style={{ fontWeight: 'bold' }}>txid:</div>
-        <div style={{ wordWrap: 'break-word' }}>{txid}</div>
+      <div style={{ textAlign: 'left'}}>
+        <div style={{ fontWeight: 'bold' }}>index:</div>
+        <div style={{ wordWrap: 'break-word' }}>{batchTransferProgress?.index}</div>
+      </div>
+      <div style={{ textAlign: 'left'}}>
+        <div style={{ fontWeight: 'bold' }}>tick:</div>
+        <div style={{ wordWrap: 'break-word' }}>{batchTransferProgress?.tick}</div>
+      </div>
+      <div style={{ textAlign: 'left'}}>
+        <div style={{ fontWeight: 'bold' }}>to:</div>
+        <div style={{ wordWrap: 'break-word' }}>{batchTransferProgress?.to}</div>
+      </div>
+      <div style={{ textAlign: 'left'}}>
+        <div style={{ fontWeight: 'bold' }}>amount:</div>
+        <div style={{ wordWrap: 'break-word' }}>{batchTransferProgress?.amount}</div>
+      </div>
+      <div style={{ textAlign: 'left'}}>
+        <div style={{ fontWeight: 'bold' }}>errorMsg:</div>
+        <div style={{ wordWrap: 'break-word' }}>{batchTransferProgress?.errorMsg}</div>
+      </div>
+      <div style={{ textAlign: 'left'}}>
+        <div style={{ fontWeight: 'bold' }}>txId:</div>
+        <div style={{ wordWrap: 'break-word' }}>{batchTransferProgress?.txId?.revealId}</div>
       </div>
 
       <Button
