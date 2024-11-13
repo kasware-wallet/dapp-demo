@@ -87,7 +87,7 @@ function App() {
   };
   const handleKRC20BatchTransferChangedChanged = (ress: BatchTransferRes[]) => {
     ress.forEach((res) => {
-      console.log('result', res.status,res?.index, res?.txId?.revealId, res?.errorMsg);
+      console.log('result', res.status, res?.index, res?.txId?.revealId, res?.errorMsg);
       setBatchTransferProgress(res);
     });
   };
@@ -200,6 +200,7 @@ function App() {
             <MintKRC20 />
             <TransferKRC20 />
             <BatchTransferKRC20V2 batchTransferProgress={batchTransferProgress} />
+            <CommitReveal />
           </div>
         ) : (
           <div>
@@ -535,7 +536,6 @@ function BatchTransferKRC20V2({ batchTransferProgress }: { batchTransferProgress
   const [txid, setTxid] = useState('');
 
   const handleBatchTransfer2 = async () => {
-
     let list = [
       {
         tick: 'tesla',
@@ -761,27 +761,27 @@ function BatchTransferKRC20V2({ batchTransferProgress }: { batchTransferProgress
         <div style={{ fontWeight: 'bold' }}>status:</div>
         <div style={{ wordWrap: 'break-word' }}>{batchTransferProgress?.status}</div>
       </div>
-      <div style={{ textAlign: 'left'}}>
+      <div style={{ textAlign: 'left' }}>
         <div style={{ fontWeight: 'bold' }}>index:</div>
         <div style={{ wordWrap: 'break-word' }}>{batchTransferProgress?.index}</div>
       </div>
-      <div style={{ textAlign: 'left'}}>
+      <div style={{ textAlign: 'left' }}>
         <div style={{ fontWeight: 'bold' }}>tick:</div>
         <div style={{ wordWrap: 'break-word' }}>{batchTransferProgress?.tick}</div>
       </div>
-      <div style={{ textAlign: 'left'}}>
+      <div style={{ textAlign: 'left' }}>
         <div style={{ fontWeight: 'bold' }}>to:</div>
         <div style={{ wordWrap: 'break-word' }}>{batchTransferProgress?.to}</div>
       </div>
-      <div style={{ textAlign: 'left'}}>
+      <div style={{ textAlign: 'left' }}>
         <div style={{ fontWeight: 'bold' }}>amount:</div>
         <div style={{ wordWrap: 'break-word' }}>{batchTransferProgress?.amount}</div>
       </div>
-      <div style={{ textAlign: 'left'}}>
+      <div style={{ textAlign: 'left' }}>
         <div style={{ fontWeight: 'bold' }}>errorMsg:</div>
         <div style={{ wordWrap: 'break-word' }}>{batchTransferProgress?.errorMsg}</div>
       </div>
-      <div style={{ textAlign: 'left'}}>
+      <div style={{ textAlign: 'left' }}>
         <div style={{ fontWeight: 'bold' }}>txId:</div>
         <div style={{ wordWrap: 'break-word' }}>{batchTransferProgress?.txId?.revealId}</div>
       </div>
@@ -803,6 +803,119 @@ function BatchTransferKRC20V2({ batchTransferProgress }: { batchTransferProgress
           await (window as any).kasware.cancelKRC20BatchTransfer();
         }}>
         Cancel
+      </Button>
+    </Card>
+  );
+}
+
+function CommitReveal() {
+  const [txid, setTxid] = useState('');
+  const [entries, setEntries] = useState([]);
+
+  const handleCommit = async () => {
+    const entries = await (window as any).kasware.getUtxoEntries();
+    console.log('entries: ', entries);
+    const p2shAddress = 'kaspatest:pzchcdxny03nds4jck4manfpk887jrll6r75s64fcn85th8dp7eqw5yapl0kd';
+    const entries2 = await (window as any).kasware.getUtxoEntries(p2shAddress);
+    console.log('p2sh address: ', entries2);
+    const [address] = await (window as any).kasware.getAccounts();
+    const network = await (window as any).kasware.getNetwork();
+    const outputs = [{ address: p2shAddress, amount: 2.5 }];
+    let networkId = 'testnet-10';
+    switch (network) {
+      case 'kaspa_mainnet':
+        networkId = 'mainnet';
+        break;
+      case 'kaspa_testnet_11':
+        networkId = 'testnet-11';
+        break;
+      case 'kaspa_testnet_10':
+        networkId = 'testnet-10';
+        break;
+      case 'kaspa_devnet':
+        networkId = 'devnet';
+        break;
+      default:
+        networkId = 'testnet-10';
+        break;
+    }
+
+    const script =
+      '208ad66334695581374bd6e1ba5b710d365690d7a758535852fe8223deecc541e7ac0063076b6173706c657800287b2270223a224b52432d3230222c226f70223a226d696e74222c227469636b223a2257415245227d68';
+    const results = await (window as any).kasware.submitCommit(
+      [],
+      entries,
+      outputs,
+      address,
+      0,
+      networkId,
+      script
+    );
+    console.log('results: ', results);
+    return results;
+  };
+  const handleReveal = async () => {
+    const entries = await (window as any).kasware.getUtxoEntries();
+    console.log('entries: ', entries);
+    const p2shAddress = 'kaspatest:pzchcdxny03nds4jck4manfpk887jrll6r75s64fcn85th8dp7eqw5yapl0kd';
+    const entries2 = await (window as any).kasware.getUtxoEntries(p2shAddress);
+    console.log('p2sh address: ', entries2);
+    const [address] = await (window as any).kasware.getAccounts();
+    const network = await (window as any).kasware.getNetwork();
+    const outputs = [{ address: p2shAddress, amount: 2.5 }];
+    let networkId = 'testnet-10';
+    switch (network) {
+      case 'kaspa_mainnet':
+        networkId = 'mainnet';
+        break;
+      case 'kaspa_testnet_11':
+        networkId = 'testnet-11';
+        break;
+      case 'kaspa_testnet_10':
+        networkId = 'testnet-10';
+        break;
+      case 'kaspa_devnet':
+        networkId = 'devnet';
+        break;
+      default:
+        networkId = 'testnet-10';
+        break;
+    }
+
+    const script =
+      '208ad66334695581374bd6e1ba5b710d365690d7a758535852fe8223deecc541e7ac0063076b6173706c657800287b2270223a224b52432d3230222c226f70223a226d696e74222c227469636b223a2257415245227d68';
+    const results = await (window as any).kasware.submitReveal(
+      [entries2[0]],
+      entries,
+      [],
+      address,
+      0,
+      networkId,
+      script
+    );
+    console.log('results: ', results);
+    return results;
+  };
+
+  return (
+    <Card size="small" title="Batch Transfer KRC20 V2" style={{ width: 300, margin: 10 }}>
+      <Button
+        style={{ marginTop: 10 }}
+        onClick={async () => {
+          try {
+            await handleCommit();
+          } catch (e) {
+            setTxid((e as any).message);
+          }
+        }}>
+        Commit
+      </Button>
+      <Button
+        style={{ marginTop: 10 }}
+        onClick={async () => {
+          await handleReveal();
+        }}>
+        Reveal
       </Button>
     </Card>
   );
