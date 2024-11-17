@@ -842,15 +842,15 @@ function CommitReveal() {
 
     const script =
       '208ad66334695581374bd6e1ba5b710d365690d7a758535852fe8223deecc541e7ac0063076b6173706c657800287b2270223a224b52432d3230222c226f70223a226d696e74222c227469636b223a2257415245227d68';
-    const results = await (window as any).kasware.submitCommit(
-      [],
-      entries,
+    const results = await (window as any).kasware.submitCommit({
+      priorityEntries: [],
+      entries: entries,
       outputs,
-      address,
-      0,
+      changeAddress: address,
+      priorityFee: 0,
       networkId,
       script
-    );
+    });
     console.log('results: ', results);
     return results;
   };
@@ -884,15 +884,15 @@ function CommitReveal() {
 
     const script =
       '208ad66334695581374bd6e1ba5b710d365690d7a758535852fe8223deecc541e7ac0063076b6173706c657800287b2270223a224b52432d3230222c226f70223a226d696e74222c227469636b223a2257415245227d68';
-    const results = await (window as any).kasware.submitReveal(
-      [entries2[0]],
+    const results = await (window as any).kasware.submitReveal({
+      priorityEntries: [entries2[0]],
       entries,
-      [],
-      address,
-      0,
+      outputs: [],
+      changeAddress: address,
+      priorityFee: 0,
       networkId,
       script
-    );
+    });
     console.log('results: ', results);
     return results;
   };
