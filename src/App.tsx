@@ -564,6 +564,7 @@ function KRC20MarketPlace() {
       // todo: check the utxo in the txjsonstring on api.kaspa.org or use  to see if it exists. if not, it means user has canceled this order.
       const txid = await (window as any).kasware.buyKRC20Token({
         txJsonString,
+        // you can use extraOutput to create a service fee or other things
         extraOutput: [
           { address: 'kaspatest:qrpygfgeq45h68wz5pk4rtay02w7fwlhax09x4rsqceqq6s3mz6uctlh3a695', amount: 10 }
         ],
