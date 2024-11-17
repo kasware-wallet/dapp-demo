@@ -87,7 +87,7 @@ function App() {
   };
   const handleKRC20BatchTransferChangedChanged = (ress: BatchTransferRes[]) => {
     ress.forEach((res) => {
-      console.log('result', res.status,res?.index, res?.txId?.revealId, res?.errorMsg);
+      console.log('result', res.status, res?.index, res?.txId?.revealId, res?.errorMsg);
       setBatchTransferProgress(res);
     });
   };
@@ -199,7 +199,7 @@ function App() {
             <DeployKRC20 />
             <MintKRC20 />
             <TransferKRC20 />
-            <BatchTransferKRC20V2 batchTransferProgress={batchTransferProgress} />
+            <KRC20MarketPlace />
           </div>
         ) : (
           <div>
@@ -531,278 +531,126 @@ function TransferKRC20() {
   );
 }
 
-function BatchTransferKRC20V2({ batchTransferProgress }: { batchTransferProgress: BatchTransferRes | undefined }) {
-  const [txid, setTxid] = useState('');
+function KRC20MarketPlace() {
+  const [buyTxid, setBuyTxid] = useState('');
+  const [cancelTxid, setCancelTxid] = useState('');
+  const [sendCommitTxId, setSendCommitTxId] = useState('');
+  const [txJsonString, setTxJsonString] = useState('');
+  // txJsonString is pskt string
+  const handleCreateOrder = async () => {
+    try {
+      // todo: check the token balance first. if balance is not enough, then return error
 
-  const handleBatchTransfer2 = async () => {
+      const krc20Balances = await (window as any).kasware.getKRC20Balance();
+      console.log('krc20Balances', krc20Balances);
 
-    let list = [
-      {
-        tick: 'tesla',
-        to: 'kaspatest:qz45kwyswwpsedqqv3lm3hq3de4c5uwp0cwqnwn74medm4uxzmesvksw9fuyx',
-        amount: 0.1
-      },
-      {
-        tick: 'tesla',
-        to: 'kaspatest:qz45kwyswwpsedqqv3lm3hq3de4c5uwp0cwqnwn74medm4uxzmesvksw9fuyx',
-        amount: 0.2
-      },
-      {
-        tick: 'tesla',
-        to: 'kaspatest:qz45kwyswwpsedqqv3lm3hq3de4c5uwp0cwqnwn74medm4uxzmesvksw9fuyx',
-        amount: 0.3
-      },
-      {
-        tick: 'tesla',
-        to: 'kaspatest:qz45kwyswwpsedqqv3lm3hq3de4c5uwp0cwqnwn74medm4uxzmesvksw9fuyx',
-        amount: 0.4
-      },
-      {
-        tick: 'tesla',
-        to: 'kaspatest:qz45kwyswwpsedqqv3lm3hq3de4c5uwp0cwqnwn74medm4uxzmesvksw9fuyx',
-        amount: 0.5
-      },
-      {
-        tick: 'tesla',
-        to: 'kaspatest:qz45kwyswwpsedqqv3lm3hq3de4c5uwp0cwqnwn74medm4uxzmesvksw9fuyx',
-        amount: 0.6
-      },
-      {
-        tick: 'tesla',
-        to: 'kaspatest:qz45kwyswwpsedqqv3lm3hq3de4c5uwp0cwqnwn74medm4uxzmesvksw9fuyx',
-        amount: 0.7
-      },
-      {
-        tick: 'tesla',
-        to: 'kaspatest:qz45kwyswwpsedqqv3lm3hq3de4c5uwp0cwqnwn74medm4uxzmesvksw9fuyx',
-        amount: 0.8
-      },
-      {
-        tick: 'tesla',
-        to: 'kaspatest:qz45kwyswwpsedqqv3lm3hq3de4c5uwp0cwqnwn74medm4uxzmesvksw9fuyx',
-        amount: 0.9
-      },
-      {
-        tick: 'tesla',
-        to: 'kaspatest:qz45kwyswwpsedqqv3lm3hq3de4c5uwp0cwqnwn74medm4uxzmesvksw9fuyx',
-        amount: 1
-      },
-      {
-        tick: 'tesla',
-        to: 'kaspatest:qz45kwyswwpsedqqv3lm3hq3de4c5uwp0cwqnwn74medm4uxzmesvksw9fuyx',
-        amount: 1.1
-      },
-      {
-        tick: 'tesla',
-        to: 'kaspatest:qz45kwyswwpsedqqv3lm3hq3de4c5uwp0cwqnwn74medm4uxzmesvksw9fuyx',
-        amount: 1.2
-      },
-      {
-        tick: 'tesla',
-        to: 'kaspatest:qz45kwyswwpsedqqv3lm3hq3de4c5uwp0cwqnwn74medm4uxzmesvksw9fuyx',
-        amount: 1.3
-      },
-      {
-        tick: 'tesla',
-        to: 'kaspatest:qz45kwyswwpsedqqv3lm3hq3de4c5uwp0cwqnwn74medm4uxzmesvksw9fuyx',
-        amount: 1.4
-      },
-      {
-        tick: 'tesla',
-        to: 'kaspatest:qz45kwyswwpsedqqv3lm3hq3de4c5uwp0cwqnwn74medm4uxzmesvksw9fuyx',
-        amount: 1.5
-      },
-      {
-        tick: 'tesla',
-        to: 'kaspatest:qz45kwyswwpsedqqv3lm3hq3de4c5uwp0cwqnwn74medm4uxzmesvksw9fuyx',
-        amount: 1.6
-      },
-      {
-        tick: 'tesla',
-        to: 'kaspatest:qz45kwyswwpsedqqv3lm3hq3de4c5uwp0cwqnwn74medm4uxzmesvksw9fuyx',
-        amount: 1.7
-      },
-      {
-        tick: 'tesla',
-        to: 'kaspatest:qz45kwyswwpsedqqv3lm3hq3de4c5uwp0cwqnwn74medm4uxzmesvksw9fuyx',
-        amount: 1.8
-      },
-      {
-        tick: 'tesla',
-        to: 'kaspatest:qz45kwyswwpsedqqv3lm3hq3de4c5uwp0cwqnwn74medm4uxzmesvksw9fuyx',
-        amount: 1.9
-      },
-      {
-        tick: 'tesla',
-        to: 'kaspatest:qz45kwyswwpsedqqv3lm3hq3de4c5uwp0cwqnwn74medm4uxzmesvksw9fuyx',
-        amount: 2
-      },
-      {
-        tick: 'tesla',
-        to: 'kaspatest:qz45kwyswwpsedqqv3lm3hq3de4c5uwp0cwqnwn74medm4uxzmesvksw9fuyx',
-        amount: 2.1
-      },
-      {
-        tick: 'tesla',
-        to: 'kaspatest:qz45kwyswwpsedqqv3lm3hq3de4c5uwp0cwqnwn74medm4uxzmesvksw9fuyx',
-        amount: 2.2
-      },
-      {
-        tick: 'tesla',
-        to: 'kaspatest:qz45kwyswwpsedqqv3lm3hq3de4c5uwp0cwqnwn74medm4uxzmesvksw9fuyx',
-        amount: 2.3
-      },
-      {
-        tick: 'tesla',
-        to: 'kaspatest:qz45kwyswwpsedqqv3lm3hq3de4c5uwp0cwqnwn74medm4uxzmesvksw9fuyx',
-        amount: 2.4
-      },
-      {
-        tick: 'tesla',
-        to: 'kaspatest:qz45kwyswwpsedqqv3lm3hq3de4c5uwp0cwqnwn74medm4uxzmesvksw9fuyx',
-        amount: 2.5
-      },
-      {
-        tick: 'tesla',
-        to: 'kaspatest:qz45kwyswwpsedqqv3lm3hq3de4c5uwp0cwqnwn74medm4uxzmesvksw9fuyx',
-        amount: 2.6
-      },
-      {
-        tick: 'tesla',
-        to: 'kaspatest:qz45kwyswwpsedqqv3lm3hq3de4c5uwp0cwqnwn74medm4uxzmesvksw9fuyx',
-        amount: 2.7
-      },
-      {
-        tick: 'tesla',
-        to: 'kaspatest:qz45kwyswwpsedqqv3lm3hq3de4c5uwp0cwqnwn74medm4uxzmesvksw9fuyx',
-        amount: 2.8
-      },
-      {
-        tick: 'tesla',
-        to: 'kaspatest:qz45kwyswwpsedqqv3lm3hq3de4c5uwp0cwqnwn74medm4uxzmesvksw9fuyx',
-        amount: 2.9
-      },
-      {
-        tick: 'tesla',
-        to: 'kaspatest:qz45kwyswwpsedqqv3lm3hq3de4c5uwp0cwqnwn74medm4uxzmesvksw9fuyx',
-        amount: 3
-      },
-      {
-        tick: 'tesla',
-        to: 'kaspatest:qz45kwyswwpsedqqv3lm3hq3de4c5uwp0cwqnwn74medm4uxzmesvksw9fuyx',
-        amount: 3.1
-      },
-      {
-        tick: 'tesla',
-        to: 'kaspatest:qz45kwyswwpsedqqv3lm3hq3de4c5uwp0cwqnwn74medm4uxzmesvksw9fuyx',
-        amount: 3.2
-      },
-      {
-        tick: 'tesla',
-        to: 'kaspatest:qz45kwyswwpsedqqv3lm3hq3de4c5uwp0cwqnwn74medm4uxzmesvksw9fuyx',
-        amount: 3.3
-      },
-      {
-        tick: 'tesla',
-        to: 'kaspatest:qz45kwyswwpsedqqv3lm3hq3de4c5uwp0cwqnwn74medm4uxzmesvksw9fuyx',
-        amount: 3.4
-      },
-      {
-        tick: 'tesla',
-        to: 'kaspatest:qz45kwyswwpsedqqv3lm3hq3de4c5uwp0cwqnwn74medm4uxzmesvksw9fuyx',
-        amount: 3.5
-      },
-      {
-        tick: 'tesla',
-        to: 'kaspatest:qz45kwyswwpsedqqv3lm3hq3de4c5uwp0cwqnwn74medm4uxzmesvksw9fuyx',
-        amount: 3.6
-      },
-      {
-        tick: 'tesla',
-        to: 'kaspatest:qz45kwyswwpsedqqv3lm3hq3de4c5uwp0cwqnwn74medm4uxzmesvksw9fuyx',
-        amount: 3.7
-      },
-      {
-        tick: 'tesla',
-        to: 'kaspatest:qz45kwyswwpsedqqv3lm3hq3de4c5uwp0cwqnwn74medm4uxzmesvksw9fuyx',
-        amount: 3.8
-      },
-      {
-        tick: 'tesla',
-        to: 'kaspatest:qz45kwyswwpsedqqv3lm3hq3de4c5uwp0cwqnwn74medm4uxzmesvksw9fuyx',
-        amount: 3.9
-      },
-      {
-        tick: 'tesla',
-        to: 'kaspatest:qz45kwyswwpsedqqv3lm3hq3de4c5uwp0cwqnwn74medm4uxzmesvksw9fuyx',
-        amount: 4
-      },
-      {
-        tick: 'tesla',
-        to: 'kaspatest:qz45kwyswwpsedqqv3lm3hq3de4c5uwp0cwqnwn74medm4uxzmesvksw9fuyx',
-        amount: 4.1
-      },
-      {
-        tick: 'tesla',
-        to: 'kaspatest:qz45kwyswwpsedqqv3lm3hq3de4c5uwp0cwqnwn74medm4uxzmesvksw9fuyx',
-        amount: 4.2
-      }
-    ];
+      const { txJsonString, sendCommitTxId } = await (window as any).kasware.createKRC20Order({
+        krc20Tick: 'ware',
+        krc20Amount: 10,
+        kasAmount: 1,
+        priorityFee: 0.1
+      });
+      setTxJsonString(txJsonString);
+      setSendCommitTxId(sendCommitTxId);
+      // to do search sendCommitTxId on kasplex api to confirm it is recongized by indexer or not.
+      console.log('result: ', txJsonString, sendCommitTxId);
+    } catch (e) {
+      console.log('error: ', e);
+    }
+  };
+  const handleBuy = async () => {
+    try {
+      // todo: check the kas balance first. if balance is not enough, then return error
+      // todo: check the utxo in the txjsonstring on api.kaspa.org or use  to see if it exists. if not, it means user has canceled this order.
+      const txid = await (window as any).kasware.buyKRC20Token({
+        txJsonString,
+        extraOutput: [
+          { address: 'kaspatest:qrpygfgeq45h68wz5pk4rtay02w7fwlhax09x4rsqceqq6s3mz6uctlh3a695', amount: 10 }
+        ],
+        priorityFee: 0.1
+      });
 
-    //  the kas balance should be larger than 30 kas in order to start batch transfer.
-    const result = await (window as any).kasware.krc20BatchTransferTransaction(list);
-    // the function above should work with handleKRC20BatchTransferChangedChanged event.
-    // krc20BatchTransferTransaction() is called, handleKRC20BatchTransferChangedChanged event will monitor activities and return any latest successful/failed result.
-    setTxid(result);
+      setBuyTxid(txid);
+    } catch (e) {
+      console.log('error: ', e);
+    }
+  };
+
+  //  kasware will provide a event to monitor the create krc20 order process in case it's failed in the middle.
+  // kasware will also provide a api to monitor rbf event in case any transaction id is replace by rbf.
+
+  const handleCancelOrder = async () => {
+    try {
+      const txid = await (window as any).kasware.cancelKRC20Order({
+        krc20Tick: 'ware',
+        txJsonString
+      });
+      setCancelTxid(txid);
+    } catch (e) {
+      console.log('error: ', e);
+    }
   };
   return (
-    <Card size="small" title="Batch Transfer KRC20 V2" style={{ width: 300, margin: 10 }}>
-      <div style={{ textAlign: 'left', marginTop: 10 }}>
-        <div style={{ fontWeight: 'bold' }}>status:</div>
-        <div style={{ wordWrap: 'break-word' }}>{batchTransferProgress?.status}</div>
-      </div>
-      <div style={{ textAlign: 'left'}}>
-        <div style={{ fontWeight: 'bold' }}>index:</div>
-        <div style={{ wordWrap: 'break-word' }}>{batchTransferProgress?.index}</div>
-      </div>
-      <div style={{ textAlign: 'left'}}>
-        <div style={{ fontWeight: 'bold' }}>tick:</div>
-        <div style={{ wordWrap: 'break-word' }}>{batchTransferProgress?.tick}</div>
-      </div>
-      <div style={{ textAlign: 'left'}}>
-        <div style={{ fontWeight: 'bold' }}>to:</div>
-        <div style={{ wordWrap: 'break-word' }}>{batchTransferProgress?.to}</div>
-      </div>
-      <div style={{ textAlign: 'left'}}>
-        <div style={{ fontWeight: 'bold' }}>amount:</div>
-        <div style={{ wordWrap: 'break-word' }}>{batchTransferProgress?.amount}</div>
-      </div>
-      <div style={{ textAlign: 'left'}}>
-        <div style={{ fontWeight: 'bold' }}>errorMsg:</div>
-        <div style={{ wordWrap: 'break-word' }}>{batchTransferProgress?.errorMsg}</div>
-      </div>
-      <div style={{ textAlign: 'left'}}>
-        <div style={{ fontWeight: 'bold' }}>txId:</div>
-        <div style={{ wordWrap: 'break-word' }}>{batchTransferProgress?.txId?.revealId}</div>
-      </div>
-
+    <Card size="small" title="KRC20 Market Place" style={{ width: 300, margin: 10 }}>
+      {sendCommitTxId !== undefined && sendCommitTxId.length > 0 && (
+        <div style={{ textAlign: 'left', marginTop: 10 }}>
+          <div style={{ fontWeight: 'bold' }}>data:</div>
+          <div style={{ wordWrap: 'break-word' }}>{sendCommitTxId}</div>
+        </div>
+      )}
+      {txJsonString !== undefined && txJsonString.length > 0 && (
+        <div style={{ textAlign: 'left', marginTop: 10 }}>
+          <div style={{ fontWeight: 'bold' }}>pskt:</div>
+          <div style={{ wordWrap: 'break-word' }}>{txJsonString}</div>
+        </div>
+      )}
+      {buyTxid !== undefined && buyTxid.length > 0 && (
+        <div style={{ textAlign: 'left', marginTop: 10 }}>
+          <div style={{ fontWeight: 'bold' }}>data:</div>
+          <div style={{ wordWrap: 'break-word' }}>{buyTxid}</div>
+        </div>
+      )}
+      {cancelTxid !== undefined && cancelTxid.length > 0 && (
+        <div style={{ textAlign: 'left', marginTop: 10 }}>
+          <div style={{ fontWeight: 'bold' }}>data:</div>
+          <div style={{ wordWrap: 'break-word' }}>{cancelTxid}</div>
+        </div>
+      )}
       <Button
         style={{ marginTop: 10 }}
         onClick={async () => {
           try {
-            await handleBatchTransfer2();
+            await handleCreateOrder();
           } catch (e) {
-            setTxid((e as any).message);
+            console.log('error: ', e);
+            setSendCommitTxId((e as any).message);
           }
         }}>
-        Batch Transfer KRC20 Token V2
+        Create Order
       </Button>
       <Button
         style={{ marginTop: 10 }}
         onClick={async () => {
-          await (window as any).kasware.cancelKRC20BatchTransfer();
+          try {
+            await handleBuy();
+          } catch (e) {
+            console.log('error: ', e);
+            setBuyTxid((e as any).message);
+          }
         }}>
-        Cancel
+        Buy
+      </Button>
+      <Button
+        style={{ marginTop: 10 }}
+        onClick={async () => {
+          try {
+            await handleCancelOrder();
+          } catch (e) {
+            console.log('error: ', e);
+            setCancelTxid((e as any).message);
+          }
+        }}>
+        Cancel Order
       </Button>
     </Card>
   );
