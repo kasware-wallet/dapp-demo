@@ -569,6 +569,15 @@ function KRC20MarketPlace() {
   // txJsonString is pskt string
   const handleCreateOrder = async () => {
     try {
+
+      const listJsonString = '{"p":"krc-20","op":"list","tick":"ware","amt":"1000000000"}';
+      const listP2shAddress = await (window as any).kasware.getP2shAddress(listJsonString);
+      console.log('listP2shAddress: ', listP2shAddress);
+
+      const sendJsonString = '{"p":"krc-20","op":"send","tick":"ware"}';
+                             
+      const sendP2shAddress = await (window as any).kasware.getP2shAddress(sendJsonString);
+      console.log('sendP2shAddress: ', sendP2shAddress);
       // todo: check the token balance first. if balance is not enough, then return error
 
       const krc20Balances = await (window as any).kasware.getKRC20Balance();
@@ -615,8 +624,8 @@ function KRC20MarketPlace() {
       const txid = await (window as any).kasware.cancelKRC20Order({
         krc20Tick: "ware",
         // txJsonString or sendCommitTxId must be set one of them.
-        txJsonString,
-        // sendCommitTxId
+        // txJsonString,
+        sendCommitTxId
       });
       setCancelTxid(txid);
     } catch (e) {
