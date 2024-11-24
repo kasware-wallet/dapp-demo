@@ -255,7 +255,8 @@ function SignMessageCard() {
       <Button
         style={{ marginTop: 10 }}
         onClick={async () => {
-          const signature = await (window as any).kasware.signMessage(message);
+          const noAuxRand = false
+          const signature = await (window as any).kasware.signMessage(message, noAuxRand);
           setSignature(signature);
         }}
       >
