@@ -34,9 +34,9 @@ interface BatchTransferRes {
   txId?: { commitId: string; revealId: string };
 }
 
-interface ISubmitTransactionReplacementResponse {
+interface transactionReplacementResponse {
   transactionId: string;
-  replacedTransaction: string;
+  replacedTransactionId: string;
 }
 
 function App() {
@@ -255,7 +255,7 @@ function SignMessageCard() {
       <Button
         style={{ marginTop: 10 }}
         onClick={async () => {
-          const noAuxRand = false
+          const noAuxRand = false;
           const signature = await (window as any).kasware.signMessage(message, noAuxRand);
           setSignature(signature);
         }}
@@ -575,11 +575,11 @@ function KRC20MarketPlace() {
   // txJsonString is pskt string
   const handleCreateOrder = async () => {
     try {
-      const listJsonString = '{"p":"krc-20","op":"list","tick":"ware","amt":"1000000000"}';
+      const listJsonString = '{"p":"krc-20","op":"list","tick":"aaaa","amt":"1000000000"}';
       const listP2shAddress = await (window as any).kasware.getP2shAddress(listJsonString);
       console.log("listP2shAddress: ", listP2shAddress);
 
-      const sendJsonString = '{"p":"krc-20","op":"send","tick":"ware"}';
+      const sendJsonString = '{"p":"krc-20","op":"send","tick":"aaaa"}';
       const sendP2shAddress = await (window as any).kasware.getP2shAddress(sendJsonString);
       console.log("sendP2shAddress: ", sendP2shAddress);
       // todo: check the token balance first. if balance is not enough, then return error
@@ -591,8 +591,9 @@ function KRC20MarketPlace() {
         krc20Tick: "ware",
         krc20Amount: 10,
         kasAmount: 10,
-        extraOutput: [
-          { address: "kaspatest:qrpygfgeq45h68wz5pk4rtay02w7fwlhax09x4rsqceqq6s3mz6uctlh3a695", amount: 0.2 },
+        // // you can use psktextraOutput to create a service fee or other things
+        psktExtraOutput: [
+          { address: "kaspatest:qrpygfgeq45h68wz5pk4rtay02w7fwlhax09x4rsqceqq6s3mz6uctlh3a695", amount: 0.3 },
         ],
         priorityFee: 0.1,
       });
@@ -611,9 +612,10 @@ function KRC20MarketPlace() {
       const txid = await (window as any).kasware.buyKRC20Token({
         txJsonString,
         // you can use extraOutput to create a service fee or other things
-        // extraOutput: [
-        //   { address: "kaspatest:qrpygfgeq45h68wz5pk4rtay02w7fwlhax09x4rsqceqq6s3mz6uctlh3a695", amount: 10 },
-        // ],
+        extraOutput: [
+          { address: "kaspatest:qra06rlekd5jsqzc29zguvvrkq8qflhdpsg3uyqw3xvth5ljf5ujs7l2q92ma", amount: 0.2 },
+        ],
+        // extraOutput: [],
         priorityFee: 0.1,
       });
 
@@ -640,9 +642,9 @@ function KRC20MarketPlace() {
     }
   };
 
-  const handleSubmitTransactionReplacementResponse = (res: ISubmitTransactionReplacementResponse) => {
+  const handleSubmitTransactionReplacementResponse = (res: transactionReplacementResponse) => {
     console.log("transactionId", res.transactionId);
-    console.log("replacedTransaction", res.replacedTransaction);
+    console.log("replacedTransaction", res.replacedTransactionId);
   };
 
   useEffect(() => {
@@ -653,9 +655,9 @@ function KRC20MarketPlace() {
         kasware = (window as any).kasware;
       }
       if (!kasware) return;
-      kasware.on("submitTransactionReplacementResponse", handleSubmitTransactionReplacementResponse);
+      kasware.on("transactionReplacementResponse", handleSubmitTransactionReplacementResponse);
       return () => {
-        kasware.removeListener("submitTransactionReplacementResponse", handleSubmitTransactionReplacementResponse);
+        kasware.removeListener("transactionReplacementResponse", handleSubmitTransactionReplacementResponse);
       };
     }
     checkKasware().then();
