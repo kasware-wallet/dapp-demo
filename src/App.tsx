@@ -97,6 +97,12 @@ function App() {
     setNetwork(network);
     getBasicInfo();
   };
+
+  const handleBalanceChanged = (balance: any) => {
+    console.log("balance", balance);
+    setNetwork(network);
+    getBasicInfo();
+  };
   const handleKRC20BatchTransferChangedChanged = (ress: BatchTransferRes[]) => {
     ress.forEach((res) => {
       console.log("result", res.status, res?.index, res?.txId?.revealId, res?.errorMsg);
@@ -123,11 +129,13 @@ function App() {
 
       kasware.on("accountsChanged", handleAccountsChanged);
       kasware.on("networkChanged", handleNetworkChanged);
+      kasware.on("balanceChanged", handleBalanceChanged);
       kasware.on("krc20BatchTransferChanged", handleKRC20BatchTransferChangedChanged);
 
       return () => {
         kasware.removeListener("accountsChanged", handleAccountsChanged);
         kasware.removeListener("networkChanged", handleNetworkChanged);
+        kasware.removeListener("balanceChanged", handleBalanceChanged);
         kasware.removeListener("krc20BatchTransferChanged", handleKRC20BatchTransferChangedChanged);
       };
     }
