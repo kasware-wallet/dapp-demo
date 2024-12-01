@@ -580,6 +580,7 @@ function KRC20MarketPlace() {
   const [cancelTxid, setCancelTxid] = useState("");
   const [sendCommitTxId, setSendCommitTxId] = useState("");
   const [txJsonString, setTxJsonString] = useState("");
+  const [tick,setTick] = useState("ghoad");
   // txJsonString is pskt string
   const handleCreateOrder = async () => {
     try {
@@ -596,14 +597,14 @@ function KRC20MarketPlace() {
       console.log("krc20Balances", krc20Balances);
 
       const { txJsonString, sendCommitTxId } = await (window as any).kasware.createKRC20Order({
-        krc20Tick: "ware",
+        krc20Tick: tick,
         krc20Amount: 10,
-        kasAmount: 10,
+        kasAmount: 490,
         // // you can use psktextraOutput to create a service fee or other things
-        psktExtraOutput: [
-          { address: "kaspatest:qrpygfgeq45h68wz5pk4rtay02w7fwlhax09x4rsqceqq6s3mz6uctlh3a695", amount: 0.3 },
-        ],
-        priorityFee: 0.1,
+        // psktExtraOutput: [
+        //   { address: "kaspatest:qrpygfgeq45h68wz5pk4rtay02w7fwlhax09x4rsqceqq6s3mz6uctlh3a695", amount: 0.2 },
+        // ],
+        priorityFee: 0,
       });
       setTxJsonString(txJsonString);
       setSendCommitTxId(sendCommitTxId);
@@ -624,9 +625,9 @@ function KRC20MarketPlace() {
           { address: "kaspatest:qra06rlekd5jsqzc29zguvvrkq8qflhdpsg3uyqw3xvth5ljf5ujs7l2q92ma", amount: 0.2 },
         ],
         // extraOutput: [],
-        priorityFee: 0.1,
+        priorityFee: 0,
       });
-
+      // when network is congested. users many add new tx fee, which causes the txid be replacd by a new one. you can use transactionReplacementResponse event to monitor this process
       setBuyTxid(txid);
     } catch (e) {
       console.log("error: ", e);
@@ -639,7 +640,7 @@ function KRC20MarketPlace() {
   const handleCancelOrder = async () => {
     try {
       const txid = await (window as any).kasware.cancelKRC20Order({
-        krc20Tick: "ware",
+        krc20Tick: tick,
         // txJsonString or sendCommitTxId must be set one of them.
         // txJsonString,
         sendCommitTxId,
