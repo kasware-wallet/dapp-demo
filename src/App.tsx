@@ -165,7 +165,6 @@ function App() {
     <div className="App">
       <header className="App-header">
         <p>Kasware Wallet Demo</p>
-
         {connected ? (
           <div
             style={{
@@ -407,7 +406,6 @@ function DeployKRC20() {
           }}
         ></Input>
       </div>
-
       <div style={{ textAlign: "left", marginTop: 10 }}>
         <div style={{ fontWeight: "bold" }}>Max Supply: </div>
         <Input
@@ -580,7 +578,7 @@ function KRC20MarketPlace() {
   const [cancelTxid, setCancelTxid] = useState("");
   const [sendCommitTxId, setSendCommitTxId] = useState("");
   const [txJsonString, setTxJsonString] = useState("");
-  const [tick,setTick] = useState("ghoad");
+  const [tick, setTick] = useState("ghoad");
   // txJsonString is pskt string
   const handleCreateOrder = async () => {
     try {
@@ -600,7 +598,7 @@ function KRC20MarketPlace() {
         krc20Tick: tick,
         krc20Amount: 10,
         kasAmount: 490,
-        // // you can use psktextraOutput to create a service fee or other things
+        // // you can use psktExtraOutput to create a service fee or other things
         // psktExtraOutput: [
         //   { address: "kaspatest:qrpygfgeq45h68wz5pk4rtay02w7fwlhax09x4rsqceqq6s3mz6uctlh3a695", amount: 0.2 },
         // ],
@@ -608,7 +606,7 @@ function KRC20MarketPlace() {
       });
       setTxJsonString(txJsonString);
       setSendCommitTxId(sendCommitTxId);
-      // to do search sendCommitTxId on kasplex api to confirm it is recongized by indexer or not.
+      // to do: search sendCommitTxId on kasplex api to confirm if it is recongized by indexer or not.
       console.log("result: ", txJsonString, sendCommitTxId);
     } catch (e) {
       console.log("error: ", e);
@@ -617,7 +615,7 @@ function KRC20MarketPlace() {
   const handleBuy = async () => {
     try {
       // todo: check the kas balance first. if balance is not enough, then return error
-      // todo: check the utxo in the txjsonstring on api.kaspa.org or use  to see if it exists. if not, it means user has canceled this order.
+      // todo: check the utxo in the txjsonstring on api.kaspa.org or use kaspa-wasm to see if it exists. if not, it means user has canceled this order.
       const txid = await (window as any).kasware.buyKRC20Token({
         txJsonString,
         // you can use extraOutput to create a service fee or other things
@@ -627,15 +625,17 @@ function KRC20MarketPlace() {
         // extraOutput: [],
         priorityFee: 0,
       });
-      // when network is congested. users many add new tx fee, which causes the txid be replacd by a new one. you can use transactionReplacementResponse event to monitor this process
+      // when network is congested. users may want to speed up and add new tx fee, which causes the txid be replacd by a new one. you can use transactionReplacementResponse event to monitor this process
+      /* There is also an api called signBuyKRC20Token() with the same params as buyKRC20Token(). it returns a seralized transaction.
+       * You can use signBuyKRC20Token() to sign a transaction and broadcast it by yourself.
+       */
       setBuyTxid(txid);
     } catch (e) {
       console.log("error: ", e);
     }
   };
 
-  //  kasware will provide a event to monitor the create krc20 order process in case it's failed in the middle.
-  // kasware will also provide a api to monitor rbf event in case any transaction id is replace by rbf.
+  // when network is congested. users may want to speed up and add new tx fee, which causes the txid be replacd by a new one. you can use transactionReplacementResponse event to monitor this process
 
   const handleCancelOrder = async () => {
     try {
@@ -646,6 +646,9 @@ function KRC20MarketPlace() {
         sendCommitTxId,
       });
       setCancelTxid(txid);
+      /* There is also an api called signCancelKRC20Order() with the same params as cancelKRC20Order(). it returns seralized transaction.
+       * You can use signCancelKRC20Order() to sign a transaction and broadcast it by yourself.
+       */
     } catch (e) {
       console.log("error: ", e);
     }
