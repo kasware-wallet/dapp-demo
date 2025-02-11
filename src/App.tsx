@@ -297,6 +297,7 @@ function VerifyMessageCard({ publicKey }: { publicKey: string }) {
 function SendKaspa() {
   const [toAddress, setToAddress] = useState("kaspatest:qz9dvce5d92czd6t6msm5km3p5m9dyxh5av9xkzjl6pz8hhvc4q7wqg8njjyp");
   const [kasAmount, setKasAmount] = useState(1);
+  const [payload, setPayload] = useState("");
   const [txid, setTxid] = useState("");
   return (
     <Card size="small" title="Send Kaspa" style={{ width: 300, margin: 10 }}>
@@ -320,6 +321,15 @@ function SendKaspa() {
         ></Input>
       </div>
       <div style={{ textAlign: "left", marginTop: 10 }}>
+        <div style={{ fontWeight: "bold" }}>Payload:</div>
+        <Input
+          defaultValue={payload}
+          onChange={(e) => {
+            setPayload(e.target.value);
+          }}
+        ></Input>
+      </div>
+      <div style={{ textAlign: "left", marginTop: 10 }}>
         <div style={{ fontWeight: "bold" }}>txid:</div>
         <div style={{ wordWrap: "break-word" }}>{txid}</div>
       </div>
@@ -329,6 +339,7 @@ function SendKaspa() {
           try {
             const txid = await (window as any).kasware.sendKaspa(toAddress, kasAmount * 100000000, {
               priorityFee: 10000,
+              payload
             });
             setTxid(txid);
           } catch (e) {
