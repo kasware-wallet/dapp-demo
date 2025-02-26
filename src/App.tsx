@@ -27,6 +27,19 @@ interface BatchTransferRes {
   txId?: { commitId: string; revealId: string };
 }
 
+/**
+ * Kaspa Sighash types allowed by consensus
+ * @category Consensus
+ */
+enum SighashType {
+  All = 0,
+  None = 1,
+  Single = 2,
+  AllAnyOneCanPay = 3,
+  NoneAnyOneCanPay = 4,
+  SingleAnyOneCanPay = 5,
+}
+
 function App() {
   const [kaswareInstalled, setKaswareInstalled] = useState(false);
   const [connected, setConnected] = useState(false);
@@ -203,6 +216,8 @@ function App() {
             <DeployKRC20 />
             <MintKRC20 />
             <TransferKRC20 />
+            <SignPSKTCard />
+
             <BatchTransferKRC20V2 batchTransferProgress={batchTransferProgress} />
           </div>
         ) : (
@@ -339,7 +354,7 @@ function SendKaspa() {
           try {
             const txid = await (window as any).kasware.sendKaspa(toAddress, kasAmount * 100000000, {
               priorityFee: 10000,
-              payload
+              payload,
             });
             setTxid(txid);
           } catch (e) {
@@ -560,6 +575,55 @@ function TransferKRC20() {
         }}
       >
         Send KRC20 Token
+      </Button>
+    </Card>
+  );
+}
+
+function SignPSKTCard() {
+  const [pskt, setPskt] = useState(
+    `{"id":"6664c0a75a041dd1f591c5ecc539875a99e5a49aaacb2e1ef04e354d0e69c271","version":0,"inputs":[{"transactionId":"006866a332181f4e3aab471af6435a645f5ca33697633fa20233af59ae4e8b2f","index":1,"sequence":"0","sigOpCount":1,"signatureScript":"","utxo":{"address":"kaspatest:qz9dvce5d92czd6t6msm5km3p5m9dyxh5av9xkzjl6pz8hhvc4q7wqg8njjyp","amount":"99986271","scriptPublicKey":"0000208ad66334695581374bd6e1ba5b710d365690d7a758535852fe8223deecc541e7ac","blockDaaScore":"87857448","isCoinbase":false}},{"transactionId":"c46a6fcd4746bbe60a68bf2efb543a65685f81b72440fcaa271cf86b25720d31","index":0,"sequence":"0","sigOpCount":1,"signatureScript":"","utxo":{"address":"kaspatest:qz9dvce5d92czd6t6msm5km3p5m9dyxh5av9xkzjl6pz8hhvc4q7wqg8njjyp","amount":"49100001963","scriptPublicKey":"0000208ad66334695581374bd6e1ba5b710d365690d7a758535852fe8223deecc541e7ac","blockDaaScore":"87513486","isCoinbase":false}}],"outputs":[{"value":"110000000","scriptPublicKey":"000020ab4b389073830cb400647fb8dc116e6b8a71c17e1c09ba7eaef2ddd78616f306ac"},{"value":"49089970826","scriptPublicKey":"0000208ad66334695581374bd6e1ba5b710d365690d7a758535852fe8223deecc541e7ac"}],"subnetworkId":"0000000000000000000000000000000000000000","lockTime":"0","gas":"0","mass":"3154","payload":""}`
+  );
+  const [signature, setSignature] = useState("");
+  return (
+    <Card size="small" title="Sign Message" style={{ width: 300, margin: 10 }}>
+      <div style={{ textAlign: "left", marginTop: 10 }}>
+        <div style={{ fontWeight: "bold" }}>PSKT Json string:</div>
+        <Input
+          defaultValue={pskt}
+          onChange={(e) => {
+            setPskt(e.target.value);
+          }}
+        ></Input>
+      </div>
+      <div style={{ textAlign: "left", marginTop: 10 }}>
+        <div style={{ fontWeight: "bold" }}>Signature:</div>
+        <div style={{ wordWrap: "break-word" }}>{signature}</div>
+      </div>
+      <Button
+        style={{ marginTop: 10 }}
+        onClick={async () => {
+          const signature = await (window as any).kasware.signPskt({
+            txJsonString: pskt,
+            options: {
+              signInputs: [
+                {
+                  index: 0,
+                  sighashType: 0,
+                },
+                {
+                  index: 1,
+                  sighashType: 0,
+                },
+              ],
+            },
+          });
+          const txId = await (window as any).kasware.pushTx(signature);
+          console.log("txId", txId);
+          setSignature(signature);
+        }}
+      >
+        Sign PSKT
       </Button>
     </Card>
   );
