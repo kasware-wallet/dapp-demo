@@ -1,6 +1,6 @@
-import React, { useEffect, useRef, useState } from "react";
+import React, { useEffect, useMemo, useRef, useState } from "react";
 import "./App.css";
-import { Button, Card, Input, Radio } from "antd";
+import { Button, Card, Input, Radio, CollapseProps, Collapse } from "antd";
 enum TxType {
   SIGN_TX,
   SEND_KASPA,
@@ -123,6 +123,45 @@ function App() {
     checkKasware().then();
   }, []);
 
+  const items: CollapseProps["items"] = [
+    {
+      key: "sendKaspa",
+      label: <div style={{ textAlign: "start" }}>kasware.sendKaspa</div>,
+      children: <SendKaspa />,
+    },
+    {
+      key: "signMessage",
+      label: <div style={{ textAlign: "start" }}>kasware.signMessage</div>,
+      children: <SignMessageCard />,
+    },
+    {
+      key: "verifyMessage",
+      label: <div style={{ textAlign: "start" }}>kasware.verifyMessage</div>,
+      children: <VerifyMessageCard publicKey={publicKey} />,
+    },
+    {
+      key: "transferKRC20",
+
+      label: <div style={{ textAlign: "start" }}>Transfer KRC20 Token</div>,
+      children: <TransferKRC20 />,
+    },
+    {
+      key: "mintKRC20",
+      label: <div style={{ textAlign: "start" }}>Mint KRC20 Token</div>,
+      children: <MintKRC20 />,
+    },
+    {
+      key: "deployKRC20",
+      label: <div style={{ textAlign: "start" }}>Deploy KRC20 Token</div>,
+      children: <DeployKRC20 />,
+    },
+    {
+      key: "batchTransferKRC20",
+      label: <div style={{ textAlign: "start" }}>Batch Transfer KRC20 Token</div>,
+      children: <BatchTransferKRC20V2 batchTransferProgress={batchTransferProgress} />,
+    },
+  ];
+
   if (!kaswareInstalled) {
     return (
       <div className="App">
@@ -152,6 +191,7 @@ function App() {
               display: "flex",
               flexDirection: "column",
               alignItems: "center",
+              marginBottom: 30,
             }}
           >
             <Button
@@ -163,7 +203,7 @@ function App() {
             >
               Disconnect Kasware Wallet
             </Button>
-            <Card size="small" title="Basic Info" style={{ width: 300, margin: 10 }}>
+            <Card size="small" title="Basic Info" style={{ margin: 10 }}>
               <div style={{ textAlign: "left", marginTop: 10 }}>
                 <div style={{ fontWeight: "bold" }}>Address:</div>
                 <div style={{ wordWrap: "break-word" }}>{address}</div>
@@ -175,12 +215,12 @@ function App() {
               </div>
 
               <div style={{ textAlign: "left", marginTop: 10 }}>
-                <div style={{ fontWeight: "bold" }}>Balance: (kasAmount)</div>
+                <div style={{ fontWeight: "bold" }}>Balance: (sompi unit)</div>
                 <div style={{ wordWrap: "break-word" }}>{balance.total}</div>
               </div>
             </Card>
 
-            <Card size="small" title="Switch Network" style={{ width: 300, margin: 10 }}>
+            <Card size="small" title="Switch Network" style={{ margin: 10 }}>
               <div style={{ textAlign: "left", marginTop: 10 }}>
                 <div style={{ fontWeight: "bold" }}>Network:</div>
                 <Radio.Group
@@ -197,13 +237,17 @@ function App() {
                 </Radio.Group>
               </div>
             </Card>
-            <SignMessageCard />
-            <VerifyMessageCard publicKey={publicKey} />
-            <SendKaspa />
-            <DeployKRC20 />
-            <MintKRC20 />
-            <TransferKRC20 />
-            <BatchTransferKRC20V2 batchTransferProgress={batchTransferProgress} />
+            <Collapse
+              style={{
+                backgroundColor: "rgba(255,255,255,0.7)",
+                width: "90%",
+              }}
+              items={items}
+              defaultActiveKey={[]}
+              onChange={() => {
+                // todo
+              }}
+            />
           </div>
         ) : (
           <div>
@@ -226,7 +270,7 @@ function SignMessageCard() {
   const [message, setMessage] = useState("hello world~");
   const [signature, setSignature] = useState("");
   return (
-    <Card size="small" title="Sign Message" style={{ width: 300, margin: 10 }}>
+    <Card size="small" title="Sign Message" style={{ margin: 10 }}>
       <div style={{ textAlign: "left", marginTop: 10 }}>
         <div style={{ fontWeight: "bold" }}>Message:</div>
         <Input
@@ -258,7 +302,7 @@ function VerifyMessageCard({ publicKey }: { publicKey: string }) {
   const [signature, setSignature] = useState("");
   const [isVerified, setIsVerified] = useState(false);
   return (
-    <Card size="small" title="Sign Message" style={{ width: 300, margin: 10 }}>
+    <Card size="small" title="Sign Message" style={{ margin: 10 }}>
       <div style={{ textAlign: "left", marginTop: 10 }}>
         <div style={{ fontWeight: "bold" }}>Message:</div>
         <Input
@@ -299,8 +343,16 @@ function SendKaspa() {
   const [kasAmount, setKasAmount] = useState(1);
   const [payload, setPayload] = useState("");
   const [txid, setTxid] = useState("");
+  const doc_url = useMemo(() => "https://docs.kasware.xyz/wallet/dev-base/dev-integration#sendkaspa", []);
+
   return (
-    <Card size="small" title="Send Kaspa" style={{ width: 300, margin: 10 }}>
+    <Card size="small" title="Send Kaspa" style={{ margin: 10 }}>
+      <div style={{ textAlign: "left", marginTop: 10 }}>
+        <div style={{ fontWeight: "bold" }}>Docs:</div>
+        <a href={doc_url} target="_blank">
+          {doc_url}
+        </a>
+      </div>
       <div style={{ textAlign: "left", marginTop: 10 }}>
         <div style={{ fontWeight: "bold" }}>Receiver Address:</div>
         <Input
@@ -339,7 +391,7 @@ function SendKaspa() {
           try {
             const txid = await (window as any).kasware.sendKaspa(toAddress, kasAmount * 100000000, {
               priorityFee: 10000,
-              payload
+              payload,
             });
             setTxid(txid);
           } catch (e) {
@@ -387,7 +439,7 @@ function DeployKRC20() {
     setTicker(tempTick);
   }, []);
   return (
-    <Card size="small" title="Deploy KRC20" style={{ width: 300, margin: 10 }}>
+    <Card size="small" title="Deploy KRC20" style={{ margin: 10 }}>
       <div style={{ textAlign: "left", marginTop: 10 }}>
         <div style={{ fontWeight: "bold" }}>Ticker:</div>
         <Input
@@ -460,7 +512,7 @@ function MintKRC20() {
     setTxid(txid);
   };
   return (
-    <Card size="small" title="Mint KRC20" style={{ width: 300, margin: 10 }}>
+    <Card size="small" title="Mint KRC20" style={{ margin: 10 }}>
       <div style={{ textAlign: "left", marginTop: 10 }}>
         <div style={{ fontWeight: "bold" }}>Ticker:</div>
         <Input
@@ -517,7 +569,7 @@ function TransferKRC20() {
     setTxid(txid);
   };
   return (
-    <Card size="small" title="Transfer KRC20" style={{ width: 300, margin: 10 }}>
+    <Card size="small" title="Transfer KRC20" style={{ margin: 10 }}>
       <div style={{ textAlign: "left", marginTop: 10 }}>
         <div style={{ fontWeight: "bold" }}>Receiver Address:</div>
         <Input
@@ -777,7 +829,7 @@ function BatchTransferKRC20V2({ batchTransferProgress }: { batchTransferProgress
     setTxid(result);
   };
   return (
-    <Card size="small" title="Batch Transfer KRC20 V2" style={{ width: 300, margin: 10 }}>
+    <Card size="small" title="Batch Transfer KRC20 V2" style={{ margin: 10 }}>
       <div style={{ textAlign: "left", marginTop: 10 }}>
         <div style={{ fontWeight: "bold" }}>status:</div>
         <div style={{ wordWrap: "break-word" }}>{batchTransferProgress?.status}</div>
