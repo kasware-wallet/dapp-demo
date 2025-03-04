@@ -356,7 +356,7 @@ function CommitReveal() {
   };
 
   return (
-    <Card size="small" title="Batch Transfer KRC20 V2" style={{ width: 300, margin: 10 }}>
+    <Card size="small" title="Commit & Reveal" style={{ width: 300, margin: 10 }}>
       <Button
         style={{ marginTop: 10 }}
         onClick={async () => {
