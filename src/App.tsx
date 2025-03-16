@@ -609,11 +609,11 @@ function SignPSKTCard() {
               signInputs: [
                 {
                   index: 0,
-                  sighashType: 0,
+                  sighashType: SighashType.All,
                 },
                 {
                   index: 1,
-                  sighashType: 0,
+                  sighashType: SighashType.All,
                 },
               ],
             },
