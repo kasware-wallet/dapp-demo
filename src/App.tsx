@@ -603,6 +603,7 @@ function SignPSKTCard() {
       <Button
         style={{ marginTop: 10 }}
         onClick={async () => {
+          try{
           const signature = await (window as any).kasware.signPskt({
             txJsonString: pskt,
             options: {
@@ -618,9 +619,14 @@ function SignPSKTCard() {
               ],
             },
           });
+          console.log('signed tx',signature);
+
           const txId = await (window as any).kasware.pushTx(signature);
           console.log("txId", txId);
           setSignature(signature);
+        } catch (e) {
+          setSignature((e as any).message);
+        }
         }}
       >
         Sign PSKT
