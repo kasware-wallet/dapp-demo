@@ -29,15 +29,15 @@ interface BatchTransferRes {
 
 /**
  * Kaspa Sighash types allowed by consensus
- * @category Consensus
+ * @category Consensus https://kaspa-mdbook.aspectron.com/transactions/sighashes.html
  */
 enum SighashType {
-  All = 0,
-  None = 1,
-  Single = 2,
-  AllAnyOneCanPay = 3,
-  NoneAnyOneCanPay = 4,
-  SingleAnyOneCanPay = 5,
+  All = 0b00000001, // 1
+  None = 0b00000010, // 2
+  Single = 0b00000100, // 4
+  AllAnyOneCanPay = 0b10000001, // 128 + 1 = 129
+  NoneAnyOneCanPay = 0b10000010, // 128 + 2 = 130
+  SingleAnyOneCanPay = 0b10000100, // 128 + 4 = 132
 }
 
 function App() {
