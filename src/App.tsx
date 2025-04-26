@@ -1,12 +1,11 @@
 import React, { useEffect, useRef, useState } from "react";
 import "./App.css";
 import { Button, Card, Input, Radio } from "antd";
-enum TxType {
-  SIGN_TX,
-  SEND_KASPA,
-  SIGN_KRC20_DEPLOY,
-  SIGN_KRC20_MINT,
-  SIGN_KRC20_TRANSFER,
+
+export enum BuildScriptType {
+  KRC20 = "KRC20",
+  KNS = "KNS",
+  KSPR_KRC721 = "KSPR_KRC721",
 }
 
 interface BatchTransferRes {
@@ -308,12 +307,8 @@ function CommitReveal() {
   const handleCommitReveal = async () => {
     const entries = await (window as any).kasware.getUtxoEntries();
     console.log("entries: ", entries);
-    const p2shAddress = "kaspatest:pzchcdxny03nds4jck4manfpk887jrll6r75s64fcn85th8dp7eqw5yapl0kd";
-    const entries2 = await (window as any).kasware.getUtxoEntries(p2shAddress);
-    console.log("p2sh address: ", entries2);
     const [address] = await (window as any).kasware.getAccounts();
     const network = await (window as any).kasware.getNetwork();
-    const outputs = [{ address: p2shAddress, amount: 2.5 }];
     let networkId = "testnet-10";
     switch (network) {
       case "kaspa_mainnet":
@@ -333,8 +328,34 @@ function CommitReveal() {
         break;
     }
 
-    const script =
-      "208ad66334695581374bd6e1ba5b710d365690d7a758535852fe8223deecc541e7ac0063076b6173706c657800287b2270223a224b52432d3230222c226f70223a226d696e74222c227469636b223a2257415245227d68";
+    // const data = {
+    //   p: "KRC-20",
+    //   op: "transfer",
+    //   tick: "TQAWS",
+    //   amt: "112300000",
+    //   to: "kaspatest:qz9dvce5d92czd6t6msm5km3p5m9dyxh5av9xkzjl6pz8hhvc4q7wqg8njjyp",
+    // };
+    const data = {
+      op: "transfer",
+      p: "domain",
+      id: "fb70ef0725ac6e5d4d70bcab94eb6a66a1835516ffba59ee7b6a7ae1a9110a5ai0",
+      to: "kaspatest:qp2vyqkuanrqn38362wa5ja93e3se4cv3zqa8yhjalrj24n3g2t52kgq32m8c",
+    };
+    // const data = {
+    //   p: "KRC-20",
+    //   op: "mint",
+    //   tick: "WARE",
+    // };
+
+    const jsonStr = JSON.stringify(data, null, 0);
+    const { script, p2shAddress } = await (window as any).kasware.buildScript({
+      type: BuildScriptType.KNS,
+      data: jsonStr,
+    });
+    console.log("script", script);
+    // const script =
+    //   "208ad66334695581374bd6e1ba5b710d365690d7a758535852fe8223deecc541e7ac0063076b6173706c657800287b2270223a224b52432d3230222c226f70223a226d696e74222c227469636b223a2257415245227d68";
+    const outputs = [{ address: p2shAddress, amount: 2.5 }];
     const revenueAddress = "kaspatest:qrpygfgeq45h68wz5pk4rtay02w7fwlhax09x4rsqceqq6s3mz6uctlh3a695";
     const commit = {
       priorityEntries: [],
