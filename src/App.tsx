@@ -158,6 +158,11 @@ function App() {
       children: <SignPSKTCard />,
     },
     {
+      key: "build-script",
+      label: <div style={{ textAlign: "start" }}>kasware.buildScript</div>,
+      children: <BuildScriptCard />,
+    },
+    {
       key: "transferKRC20",
 
       label: <div style={{ textAlign: "start" }}>Transfer KRC20 Token</div>,
@@ -974,6 +979,63 @@ export enum BuildScriptType {
   KRC20 = "KRC20",
   KNS = "KNS",
   KSPR_KRC721 = "KSPR_KRC721",
+}
+function BuildScriptCard() {
+  const [script, setScript] = useState("");
+  const [p2shAddress, setP2shAddress] = useState("");
+
+  const handleBuildScript = async () => {
+    // const json = {
+    //   p: "KRC-20",
+    //   op: "transfer",
+    //   tick: "TQAWS",
+    //   amt: "112300000",
+    //   to: "kaspatest:qz9dvce5d92czd6t6msm5km3p5m9dyxh5av9xkzjl6pz8hhvc4q7wqg8njjyp",
+    // };
+    // const json = {
+    //   op: "transfer",
+    //   p: "domain",
+    //   id: "fb70ef0725ac6e5d4d70bcab94eb6a66a1835516ffba59ee7b6a7ae1a9110a5ai0",
+    //   to: "kaspatest:qp2vyqkuanrqn38362wa5ja93e3se4cv3zqa8yhjalrj24n3g2t52kgq32m8c",
+    // };
+    const json = {
+      p: "krc-20",
+      op: "mint",
+      tick: "ware",
+    };
+
+    const data = JSON.stringify(json, null, 0);
+    const { script, p2shAddress } = await (window as any).kasware.buildScript({
+      type: BuildScriptType.KRC20,
+      data: data,
+    });
+    setScript(script);
+    setP2shAddress(p2shAddress);
+
+    console.log("script: ", script);
+    console.log("p2sh address: ", p2shAddress);
+  };
+
+  return (
+    <Card size="small" title="Build inscription script" style={{ margin: 10, maxWidth: 600 }}>
+      <Button
+        style={{ marginTop: 10 }}
+        onClick={async () => {
+          await handleBuildScript();
+        }}
+      >
+        Build script
+      </Button>
+      <div style={{ textAlign: "left", marginTop: 10 }}>
+        <div style={{ fontWeight: "bold" }}>script:</div>
+        <div style={{ wordWrap: "break-word" }}>{script}</div>
+      </div>
+      <div style={{ textAlign: "left", marginTop: 10 }}>
+        <div style={{ fontWeight: "bold" }}>p2sh address:</div>
+        <div style={{ wordWrap: "break-word" }}>{p2shAddress}</div>
+      </div>
+    </Card>
+  );
 }
 
 function CommitReveal() {
