@@ -234,6 +234,11 @@ function App() {
     </div>
   );
 }
+enum BuildScriptType {
+  KRC20 = "KRC20",
+  KNS = "KNS",
+  KSPR_KRC721 = "KSPR_KRC721",
+}
 
 function KRC20MarketPlace() {
   const [buyTxid, setBuyTxid] = useState("");
@@ -245,11 +250,17 @@ function KRC20MarketPlace() {
   const handleCreateOrder = async () => {
     try {
       const listJsonString = '{"p":"krc-20","op":"list","tick":"aaaa","amt":"1000000000"}';
-      const listP2shAddress = await (window as any).kasware.getP2shAddress(listJsonString);
+      const { script: listScript, p2shAddress: listP2shAddress } = await (window as any).kasware.buildScript({
+        type: BuildScriptType.KRC20,
+        data: listJsonString,
+      });
       console.log("listP2shAddress: ", listP2shAddress);
 
       const sendJsonString = '{"p":"krc-20","op":"send","tick":"aaaa"}';
-      const sendP2shAddress = await (window as any).kasware.getP2shAddress(sendJsonString);
+      const { script: sendScript, p2shAddress: sendP2shAddress } = await (window as any).kasware.buildScript({
+        type: BuildScriptType.KRC20,
+        data: sendJsonString,
+      });
       console.log("sendP2shAddress: ", sendP2shAddress);
       // todo: check the token balance first. if balance is not enough, then return error
 
