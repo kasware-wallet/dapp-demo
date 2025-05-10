@@ -335,18 +335,35 @@ function CommitReveal() {
     //   amt: "112300000",
     //   to: "kaspatest:qz9dvce5d92czd6t6msm5km3p5m9dyxh5av9xkzjl6pz8hhvc4q7wqg8njjyp",
     // };
-    const data = {
-      op: "transfer",
-      p: "domain",
-      id: "fb70ef0725ac6e5d4d70bcab94eb6a66a1835516ffba59ee7b6a7ae1a9110a5ai0",
-      to: "kaspatest:qp2vyqkuanrqn38362wa5ja93e3se4cv3zqa8yhjalrj24n3g2t52kgq32m8c",
-    };
     // const data = {
-    //   p: "KRC-20",
-    //   op: "mint",
-    //   tick: "WARE",
+    //   op: "transfer",
+    //   p: "domain",
+    //   id: "fb70ef0725ac6e5d4d70bcab94eb6a66a1835516ffba59ee7b6a7ae1a9110a5ai0",
+    //   to: "kaspatest:qp2vyqkuanrqn38362wa5ja93e3se4cv3zqa8yhjalrj24n3g2t52kgq32m8c",
     // };
-
+    // const data = {
+    //   op: "transfer",
+    //   p: "domain",
+    //   id: "fb70ef0725ac6e5d4d70bcab94eb6a66a1835516ffba59ee7b6a7ae1a9110a5ai0",
+    //   to: "kaspatest:qp2vyqkuanrqn38362wa5ja93e3se4cv3zqa8yhjalrj24n3g2t52kgq32m8c",
+    // };
+    // const data = {
+    //   p: "krc-20",
+    //   op: "mint",
+    //   tick: "ware",
+    // };
+    //  const data = {
+    //     p: 'krc-20',
+    //     op: 'deploy',
+    //     mod:'issue',
+    //     name:'testa',
+    //     max: '10000000000000000',
+    //     pre:'100000000000'
+    //   }
+    const data = { p: "krc-20", op: "burn", ca: "4e756639821c7fae9020804e4671130a4d58941fd0f6df1bef25a1a43a796cea", amt: "6600000000" };
+    // const data = {"p":"krc-20","op":"blacklist","ca":"4e756639821c7fae9020804e4671130a4d58941fd0f6df1bef25a1a43a796cea","mod":"add","to":"kaspatest:qz45kwyswwpsedqqv3lm3hq3de4c5uwp0cwqnwn74medm4uxzmesvksw9fuyx"}
+    // const data = {"p":"krc-20","op":"issue","ca":"4e756639821c7fae9020804e4671130a4d58941fd0f6df1bef25a1a43a796cea","amt":"100000000000","to":"kaspatest:qz45kwyswwpsedqqv3lm3hq3de4c5uwp0cwqnwn74medm4uxzmesvksw9fuyx"}
+    // const data = {"p":"krc-20","op":"chown","ca":"4e756639821c7fae9020804e4671130a4d58941fd0f6df1bef25a1a43a796cea","to":"kaspatest:qz9dvce5d92czd6t6msm5km3p5m9dyxh5av9xkzjl6pz8hhvc4q7wqg8njjyp"}
     const jsonStr = JSON.stringify(data, null, 0);
     const { script, p2shAddress } = await (window as any).kasware.buildScript({
       type: BuildScriptType.KNS,
@@ -355,20 +372,20 @@ function CommitReveal() {
     console.log("script", script);
     // const script =
     //   "208ad66334695581374bd6e1ba5b710d365690d7a758535852fe8223deecc541e7ac0063076b6173706c657800287b2270223a224b52432d3230222c226f70223a226d696e74222c227469636b223a2257415245227d68";
-    const outputs = [{ address: p2shAddress, amount: 2.5 }];
+    const outputs = [{ address: p2shAddress, amount: 1002.5 }];
     const revenueAddress = "kaspatest:qrpygfgeq45h68wz5pk4rtay02w7fwlhax09x4rsqceqq6s3mz6uctlh3a695";
     const commit = {
       priorityEntries: [],
       entries,
       outputs,
       changeAddress: address,
-      priorityFee: 0.01,
+      priorityFee: 0.001,
     };
 
     const reveal = {
       outputs: [{ address: revenueAddress, amount: 0.5 }],
       changeAddress: address,
-      priorityFee: 0.02,
+      priorityFee: 1000,
     };
 
     const results = await (window as any).kasware.submitCommitReveal(commit, reveal, script, networkId);
