@@ -1164,12 +1164,30 @@ function CommitReveal() {
     //   id: "fb70ef0725ac6e5d4d70bcab94eb6a66a1835516ffba59ee7b6a7ae1a9110a5ai0",
     //   to: "kaspatest:qp2vyqkuanrqn38362wa5ja93e3se4cv3zqa8yhjalrj24n3g2t52kgq32m8c",
     // };
+    // const data = {
+    //   p: "krc-20",
+    //   op: "mint",
+    //   tick: "ware",
+    // };
+    //  const data = {
+    //     p: 'krc-20',
+    //     op: 'deploy',
+    //     mod:'issue',
+    //     name:'nacho',
+    //     max: '10000000000000000',
+    //     pre:'100000000000'
+    //   }
     const data = {
       p: "krc-20",
-      op: "mint",
-      tick: "ware",
+      op: "transfer",
+      ca: "bafda700676bcc34a5058efdf46e628821f55da0365b4f462a12fd3f869936da",
+      amt: "100000000000000000",
+      to: "kaspatest:qp2vyqkuanrqn38362wa5ja93e3se4cv3zqa8yhjalrj24n3g2t52kgq32m8c",
     };
-
+    // const data = { p: "krc-20", op: "burn", ca: "4e756639821c7fae9020804e4671130a4d58941fd0f6df1bef25a1a43a796cea", amt: "6600000000" };
+    // const data = {"p":"krc-20","op":"blacklist","ca":"4e756639821c7fae9020804e4671130a4d58941fd0f6df1bef25a1a43a796cea","mod":"add","to":"kaspatest:qz45kwyswwpsedqqv3lm3hq3de4c5uwp0cwqnwn74medm4uxzmesvksw9fuyx"}
+    // const data = {"p":"krc-20","op":"issue","ca":"4e756639821c7fae9020804e4671130a4d58941fd0f6df1bef25a1a43a796cea","amt":"100000000000","to":"kaspatest:qz45kwyswwpsedqqv3lm3hq3de4c5uwp0cwqnwn74medm4uxzmesvksw9fuyx"}
+    // const data = {"p":"krc-20","op":"chown","ca":"4e756639821c7fae9020804e4671130a4d58941fd0f6df1bef25a1a43a796cea","to":"kaspatest:qz9dvce5d92czd6t6msm5km3p5m9dyxh5av9xkzjl6pz8hhvc4q7wqg8njjyp"}
     const jsonStr = JSON.stringify(data, null, 0);
     const { script, p2shAddress } = await (window as any).kasware.buildScript({
       type: BuildScriptType.KRC20,
