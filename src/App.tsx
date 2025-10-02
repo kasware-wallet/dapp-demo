@@ -250,6 +250,7 @@ function KRC20MarketPlace() {
   const handleCreateOrder = async () => {
     try {
       const listJsonString = '{"p":"krc-20","op":"list","tick":"aaaa","amt":"1000000000"}';
+      // const listJsonString2 = '{"p":"krc-20","op":"list","ca":"5d6b2c1cf5a99a7ce00ddc2ca4205afd3ce34e868af622f4229be1d3b45562d2","amt":"1000000000"}';
       const { script: listScript, p2shAddress: listP2shAddress } = await (window as any).kasware.buildScript({
         type: BuildScriptType.KRC20,
         data: listJsonString,
