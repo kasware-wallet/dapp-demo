@@ -1,6 +1,6 @@
 import React, { useEffect, useMemo, useRef, useState } from "react";
 import "./App.css";
-import { Button, Card, Input, Radio, CollapseProps, Collapse } from "antd";
+import { Button, Card, Row, Input, Radio, CollapseProps, Collapse } from "antd";
 enum TxType {
   SIGN_TX,
   SEND_KASPA,
@@ -39,6 +39,8 @@ enum SighashType {
   NoneAnyOneCanPay = 0b10000010, // 128 + 2 = 130
   SingleAnyOneCanPay = 0b10000100, // 128 + 4 = 132
 }
+
+type TSignMessage = "schnorr" | "ecdsa";
 
 function App() {
   const [kaswareInstalled, setKaswareInstalled] = useState(false);
@@ -293,7 +295,8 @@ function App() {
     </div>
   );
 }
-
+const type: TSignMessage | undefined = undefined;
+const noAuxRand = true;
 function SignMessageCard() {
   const [message, setMessage] = useState("hello world~");
   const [signature, setSignature] = useState("");
@@ -315,7 +318,12 @@ function SignMessageCard() {
       <Button
         style={{ marginTop: 10 }}
         onClick={async () => {
-          const signature = await (window as any).kasware.signMessage(message);
+          /**
+           * if type is undefined, kasware will try to sign with the correct type for the address.
+           * you can also set the type to TSignMessage.Schnorr or TSignMessage.ECDSA
+           *  For noAuxRand parameter details, see: https://github.com/kaspanet/rusty-kaspa/pull/587
+           */
+          const signature = await (window as any).kasware.signMessage(message, { type, noAuxRand });
           setSignature(signature);
         }}
       >
@@ -328,7 +336,8 @@ function SignMessageCard() {
 function VerifyMessageCard({ publicKey }: { publicKey: string }) {
   const [message, setMessage] = useState("hello world~");
   const [signature, setSignature] = useState("");
-  const [isVerified, setIsVerified] = useState(false);
+  const [isVerifiedSchnorr, setIsVerifiedSchnorr] = useState(false);
+  const [isVerifiedECDSA, setIsVerifiedECDSA] = useState(false);
   return (
     <Card size="small" title="Sign Message" style={{ margin: 10, maxWidth: 600 }}>
       <div style={{ textAlign: "left", marginTop: 10 }}>
@@ -349,15 +358,22 @@ function VerifyMessageCard({ publicKey }: { publicKey: string }) {
           }}
         ></Input>
       </div>
-      <div style={{ textAlign: "left", marginTop: 10 }}>
-        <div style={{ fontWeight: "bold" }}>is verified?:</div>
-        <div style={{ wordWrap: "break-word" }}>{isVerified ? "true" : "false"}</div>
-      </div>
+      <Row justify="space-between" style={{ textAlign: "left", marginTop: 10 }}>
+        <div style={{ fontWeight: "bold" }}>is verified(schnorr)?:</div>
+        <div style={{ wordWrap: "break-word" }}>{isVerifiedSchnorr ? "true" : "false"}</div>
+      </Row>
+      <Row justify="space-between" style={{ textAlign: "left", marginTop: 10 }}>
+        <div style={{ fontWeight: "bold" }}>is verified(ECDSA)?:</div>
+        <div style={{ wordWrap: "break-word" }}>{isVerifiedECDSA ? "true" : "false"}</div>
+      </Row>
       <Button
         style={{ marginTop: 10 }}
         onClick={async () => {
-          const isVerified = await (window as any).kasware.verifyMessage(publicKey, message, signature);
-          setIsVerified(isVerified);
+          const isVerifiedECDSA = await (window as any).kasware.verifyMessageECDSA(publicKey, message, signature);
+          setIsVerifiedECDSA(isVerifiedECDSA);
+
+          const isVerifiedSchnorr = await (window as any).kasware.verifyMessage(publicKey, message, signature);
+          setIsVerifiedSchnorr(isVerifiedSchnorr);
         }}
       >
         Verify Message
@@ -1201,12 +1217,15 @@ function CommitReveal() {
     //   to: "kaspatest:qp2vyqkuanrqn38362wa5ja93e3se4cv3zqa8yhjalrj24n3g2t52kgq32m8c",
     // };
     const jsonStr = JSON.stringify(data, null, 0);
-    const { script, p2shAddress } = await (window as any).kasware.buildScript({
-      type: BuildScriptType.KRC20,
-      data: jsonStr,
-    });
+    // const { script, p2shAddress } = await (window as any).kasware.buildScript({
+    //   type: BuildScriptType.KRC20,
+    //   data: jsonStr,
+    // });
+    const script =
+      "203d47c7f78eca297598aceeb60009aba381cc39e1f46601bbcbade77df10c9a5fac0063046b737072514c68b9000461760161631a0003173b616c54aef33e76972c08b8ac19221cb6e7d2fa4054af436173584086f6d618cc35d422287f1aede1435fbfd327309909b46db80944900963af863569f6a2011ab0436194cb793da6484c7b775ef57590cabd49bca17623d3285d15004c8a7b2270223a226b72632d373231222c226f70223a227472616e73666572222c22746f6b656e4964223a2233343933222c22746f223a226b617370613a71706c6676776e74367977776a7a37366433333538616e68306b75796d6d616d667238656338363930377270666a79677a703065783464323833713364222c227469636b223a224e4143484f227d68";
+    const p2shAddress = "kaspa:qplfvwnt6ywwjz76d3358anh0kuymmamfr8ec86907rpfjygzp0ex4d283q3d";
     console.log("script", script);
-    const revenueAddress = "kaspatest:qz9dvce5d92czd6t6msm5km3p5m9dyxh5av9xkzjl6pz8hhvc4q7wqg8njjyp";
+    const revenueAddress = "kaspa:qqmuxjxga3kfa4hnluxugrxnsf70738leemdlvv0fzrpsxa28p8eq620a3ulx";
     const commit = {
       priorityEntries: [],
       entries,
