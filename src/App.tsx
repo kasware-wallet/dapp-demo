@@ -71,6 +71,11 @@ function App() {
 
     const network = await kasware.getNetwork();
     setNetwork(network);
+    setInterval(() => {
+      kasware.getBalance().then((balance: any) => {
+        console.log("balance", balance);
+      });
+    }, 1000 * 40);
   };
 
   const selfRef = useRef<{ accounts: string[] }>({
@@ -937,9 +942,82 @@ function randomString(len = 4) {
   return pwd;
 }
 function SignPSKTCard() {
-  const [pskt, setPskt] = useState(
-    `{"id":"6664c0a75a041dd1f591c5ecc539875a99e5a49aaacb2e1ef04e354d0e69c271","version":0,"inputs":[{"transactionId":"006866a332181f4e3aab471af6435a645f5ca33697633fa20233af59ae4e8b2f","index":1,"sequence":"0","sigOpCount":1,"signatureScript":"","utxo":{"address":"kaspatest:qz9dvce5d92czd6t6msm5km3p5m9dyxh5av9xkzjl6pz8hhvc4q7wqg8njjyp","amount":"99986271","scriptPublicKey":"0000208ad66334695581374bd6e1ba5b710d365690d7a758535852fe8223deecc541e7ac","blockDaaScore":"87857448","isCoinbase":false}},{"transactionId":"c46a6fcd4746bbe60a68bf2efb543a65685f81b72440fcaa271cf86b25720d31","index":0,"sequence":"0","sigOpCount":1,"signatureScript":"","utxo":{"address":"kaspatest:qz9dvce5d92czd6t6msm5km3p5m9dyxh5av9xkzjl6pz8hhvc4q7wqg8njjyp","amount":"49100001963","scriptPublicKey":"0000208ad66334695581374bd6e1ba5b710d365690d7a758535852fe8223deecc541e7ac","blockDaaScore":"87513486","isCoinbase":false}}],"outputs":[{"value":"110000000","scriptPublicKey":"000020ab4b389073830cb400647fb8dc116e6b8a71c17e1c09ba7eaef2ddd78616f306ac"},{"value":"49089970826","scriptPublicKey":"0000208ad66334695581374bd6e1ba5b710d365690d7a758535852fe8223deecc541e7ac"}],"subnetworkId":"0000000000000000000000000000000000000000","lockTime":"0","gas":"0","mass":"3154","payload":""}`
-  );
+  // const str = `{
+  //           "gas": "0",
+  //           "id": "327d9aa1bd824fbf92dcb225d9ce8de74369b31d852d4ca8cdc046dbdf246d67",
+  //           "inputs": [
+  //               {
+  //                   "index": 0,
+  //                   "sequence": "0",
+  //                   "sigOpCount": 1,
+  //                   "signatureScript": "",
+  //                   "transactionId": "9528544f210e32c550d5cdf32f5bf2258fab1211286cbd633143a61f5ace2e76",
+  //                   "utxo": {
+  //                       "address": "kaspatest:qrexqdvr9unte8eqvkn92eptns2l8vcuq2szrsmd7gq70x9fs3cqxare7k8w3",
+  //                       "amount": "1000000000",
+  //                       "blockDaaScore": "313096313",
+  //                       "isCoinbase": false,
+  //                       "scriptPublicKey": "20f26035832f26bc9f2065a655642b9c15f3b31c02a021c36df201e798a9847003ac"
+  //                   }
+  //               }
+  //           ],
+  //           "lockTime": "0",
+  //           "mass": "0",
+  //           "outputs": [
+  //               {
+  //                   "scriptPublicKey": "000020f26035832f26bc9f2065a655642b9c15f3b31c02a021c36df201e798a9847003ac",
+  //                   "value": "100000000"
+  //               },
+  //               {
+  //                   "scriptPublicKey": "000020f26035832f26bc9f2065a655642b9c15f3b31c02a021c36df201e798a9847003ac",
+  //                   "value": "889998000"
+  //               }
+  //           ],
+  //           "payload": "ac61760167747970655f696478403462306136356434323361626438653733323536386364393863376430613037396464323064643537306163376437623637623766623236306439373565613469747970655f6e616d65666372756d7034626964784030616631393732346232376434306435656533613161386366623330336539343938623231646461663630366337326662376533323130656266633865663433626d727840653234646163386531643235386566343065353235636566653164663864373133356130393032343936623964336162666438613564346430613334623061646473616c74784039383865633531333632316466633963316332356332353462626262623032623731333261363039323137626434663930333630646132623465613064323138686d616e696665737481a561687840353866616232653836376238633133316234326661666339353731626437316633626263643530303737353039306539626438356364383163366436323061326173076373657100636c6f63686b617370615f7478647265665f60646d657461a56863617465676f72796a746563686e6f6c6f6779686c616e677561676562656e687375627469746c65674c6576656e64696474616773816474657374657469746c65674c6576656e646966705f6861736878403031633262376439653139303362663938346537313331656231633365376335326161353564393633663566663433316138393861663265396435356537653962727601626564a26470726576f6637365710163656e63f6",
+  //           "subnetworkId": "0000000000000000000000000000000000000000",
+  //           "version": 0
+  //       }`;
+  const str = `{
+  "id": "1e6fca120d0f2b81c32d49833b8ac35b6bcebedd052e2607683776b31055088f",
+  "version": 0,
+  "inputs": [
+      {
+          "index": 0,
+          "sequence": "0",
+          "sigOpCount": 1,
+          "signatureScript": "",
+          "transactionId": "6bc6a81a50e8d62a0c96ae6ae9f03dc79c251e9fde5b4fd3ce9ee65ddcadf0bd",
+          "utxo": {
+              "address": "kaspatest:qrexqdvr9unte8eqvkn92eptns2l8vcuq2szrsmd7gq70x9fs3cqxare7k8w3",
+              "amount": "100000000000",
+              "blockDaaScore": "313835007",
+              "isCoinbase": false,
+              "scriptPublicKey": "000020f26035832f26bc9f2065a655642b9c15f3b31c02a021c36df201e798a9847003ac"
+          }
+      }
+  ],
+  "outputs": [
+      {
+          "scriptPublicKey": "000020f26035832f26bc9f2065a655642b9c15f3b31c02a021c36df201e798a9847003ac",
+          "value": "100000000"
+      },
+      {
+          "scriptPublicKey": "000020f26035832f26bc9f2065a655642b9c15f3b31c02a021c36df201e798a9847003ac",
+          "value": "99889998000"
+      }
+  ],
+  "subnetworkId": "0000000000000000000000000000000000000000",
+  "lockTime": "0",
+  "gas": "0",
+  "mass": "3154",
+  "payload": ""
+}`;
+  const [pskt, setPskt] = useState(str);
+
+  // const [pskt, setPskt] = useState(
+  //   `{"id":"6664c0a75a041dd1f591c5ecc539875a99e5a49aaacb2e1ef04e354d0e69c271","version":0,"inputs":[{"transactionId":"006866a332181f4e3aab471af6435a645f5ca33697633fa20233af59ae4e8b2f","index":1,"sequence":"0","sigOpCount":1,"signatureScript":"","utxo":{"address":"kaspatest:qz9dvce5d92czd6t6msm5km3p5m9dyxh5av9xkzjl6pz8hhvc4q7wqg8njjyp","amount":"99986271","scriptPublicKey":"0000208ad66334695581374bd6e1ba5b710d365690d7a758535852fe8223deecc541e7ac","blockDaaScore":"87857448","isCoinbase":false}},{"transactionId":"c46a6fcd4746bbe60a68bf2efb543a65685f81b72440fcaa271cf86b25720d31","index":0,"sequence":"0","sigOpCount":1,"signatureScript":"","utxo":{"address":"kaspatest:qz9dvce5d92czd6t6msm5km3p5m9dyxh5av9xkzjl6pz8hhvc4q7wqg8njjyp","amount":"49100001963","scriptPublicKey":"0000208ad66334695581374bd6e1ba5b710d365690d7a758535852fe8223deecc541e7ac","blockDaaScore":"87513486","isCoinbase":false}}],"outputs":[{"value":"110000000","scriptPublicKey":"000020ab4b389073830cb400647fb8dc116e6b8a71c17e1c09ba7eaef2ddd78616f306ac"},{"value":"49089970826","scriptPublicKey":"0000208ad66334695581374bd6e1ba5b710d365690d7a758535852fe8223deecc541e7ac"}],"subnetworkId":"0000000000000000000000000000000000000000","lockTime":"0","gas":"0","mass":"3154","payload":""}`
+  // );
+
   const [signature, setSignature] = useState("");
   return (
     <Card size="small" title="Sign Pskt" style={{ margin: 10, maxWidth: 600 }}>
@@ -976,10 +1054,9 @@ function SignPSKTCard() {
               },
             });
             console.log("signed tx", signature);
-
+            setSignature(signature);
             const txId = await (window as any).kasware.pushTx(signature);
             console.log("txId", txId);
-            setSignature(signature);
           } catch (e) {
             setSignature((e as any).message);
           }
@@ -1197,14 +1274,15 @@ function CommitReveal() {
       op: "mint",
       tick: "ware",
     };
-    //  const data = {
-    //     p: 'krc-20',
-    //     op: 'deploy',
-    //     mod:'issue',
-    //     name:'nacho',
-    //     max: '10000000000000000',
-    //     pre:'100000000000'
-    //   }
+    // const data = {
+    //   p: "krc-20",
+    //   op: "deploy",
+    //   mod: "issue",
+    //   name: "tsixb",
+    //   max: "10000000000000000",
+    //   pre: "100000000000",
+    //   dec: "6",
+    // };
     // const data = { p: "krc-20", op: "burn", ca: "4e756639821c7fae9020804e4671130a4d58941fd0f6df1bef25a1a43a796cea", amt: "6600000000" };
     // const data = {"p":"krc-20","op":"blacklist","ca":"4e756639821c7fae9020804e4671130a4d58941fd0f6df1bef25a1a43a796cea","mod":"add","to":"kaspatest:qz45kwyswwpsedqqv3lm3hq3de4c5uwp0cwqnwn74medm4uxzmesvksw9fuyx"}
     // const data = {"p":"krc-20","op":"issue","ca":"4e756639821c7fae9020804e4671130a4d58941fd0f6df1bef25a1a43a796cea","amt":"100000000000","to":"kaspatest:qz45kwyswwpsedqqv3lm3hq3de4c5uwp0cwqnwn74medm4uxzmesvksw9fuyx"}
@@ -1225,14 +1303,17 @@ function CommitReveal() {
     //   "203d47c7f78eca297598aceeb60009aba381cc39e1f46601bbcbade77df10c9a5fac0063046b737072514c68b9000461760161631a0003173b616c54aef33e76972c08b8ac19221cb6e7d2fa4054af436173584086f6d618cc35d422287f1aede1435fbfd327309909b46db80944900963af863569f6a2011ab0436194cb793da6484c7b775ef57590cabd49bca17623d3285d15004c8a7b2270223a226b72632d373231222c226f70223a227472616e73666572222c22746f6b656e4964223a2233343933222c22746f223a226b617370613a71706c6676776e74367977776a7a37366433333538616e68306b75796d6d616d667238656338363930377270666a79677a703065783464323833713364222c227469636b223a224e4143484f227d68";
     // const p2shAddress = "kaspa:qplfvwnt6ywwjz76d3358anh0kuymmamfr8ec86907rpfjygzp0ex4d283q3d";
     console.log("script", script);
+    const commitPriorityFee = 0;
+    const revealPriorityFee = 0;
     const commit = {
       priorityEntries: [],
       entries,
-      outputs: [{ address: p2shAddress, amount: 2.5 }],
+      outputs: [{ address: p2shAddress, amount: 2.5 + commitPriorityFee + revealPriorityFee }],
       changeAddress: address,
-      priorityFee: 0, // unit is kas
+      priorityFee: commitPriorityFee, // unit is kas
     };
-    const revenueAddress = "kaspatest:qqryrzckeeyn2m6hlazx0p0qjjdnk909x4glzs4scqlqsrdfn5k2q4n495sea";
+    // const revenueAddress = "kaspatest:qqryrzckeeyn2m6hlazx0p0qjjdnk909x4glzs4scqlqsrdfn5k2q4n495sea";
+    const revenueAddress = "";
     const outputAmount = 0.5; // unit is kas
     const reveal = {
       outputs:
@@ -1240,7 +1321,7 @@ function CommitReveal() {
           ? [{ address: revenueAddress, amount: outputAmount }]
           : undefined,
       changeAddress: address,
-      priorityFee: 0, // unit is kas
+      priorityFee: revealPriorityFee, // unit is kas
     };
 
     const results = await (window as any).kasware.submitCommitReveal(commit, reveal, script, networkId);
