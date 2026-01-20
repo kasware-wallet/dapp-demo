@@ -72,11 +72,6 @@ function App() {
 
     const network = await kasware.getNetwork();
     setNetwork(network);
-    setInterval(() => {
-      kasware.getBalance().then((balance: any) => {
-        console.log("balance", balance);
-      });
-    }, 1000 * 40);
   };
 
   const selfRef = useRef<{ accounts: string[] }>({
@@ -143,6 +138,35 @@ function App() {
 
     checkKasware().then();
   }, []);
+
+  // Periodic balance refresh
+  useEffect(() => {
+    let intervalId: NodeJS.Timeout | null = null;
+
+    const fetchBalance = async () => {
+      try {
+        const kasware = (window as any).kasware;
+        if (kasware) {
+          const balance = await kasware.getBalance();
+          console.log("balance", balance);
+          setBalance(balance);
+        }
+      } catch (error) {
+        console.error("Failed to fetch balance:", error);
+      }
+    };
+
+    if (connected) {
+      fetchBalance(); // Execute immediately once
+      intervalId = setInterval(fetchBalance, 1000 * 40); // Refresh every 40 seconds
+    }
+
+    return () => {
+      if (intervalId) {
+        clearInterval(intervalId);
+      }
+    };
+  }, [connected]);
 
   const items: CollapseProps["items"] = [
     {
