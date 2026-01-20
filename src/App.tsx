@@ -1,6 +1,7 @@
 import React, { useEffect, useMemo, useRef, useState } from "react";
 import "./App.css";
 import { Button, Card, Row, Input, Radio, CollapseProps, Collapse } from "antd";
+import { getKasNetworkId } from "./util";
 enum TxType {
   SIGN_TX,
   SEND_KASPA,
@@ -105,7 +106,7 @@ function App() {
     setNetwork(network);
     getBasicInfo();
   };
-  const handleKRC20BatchTransferChangedChanged = (ress: BatchTransferRes[]) => {
+  const handleKRC20BatchTransferChanged = (ress: BatchTransferRes[]) => {
     ress.forEach((res) => {
       console.log("result", res.status, res?.index, res?.txId?.revealId, res?.errorMsg);
       setBatchTransferProgress(res);
@@ -131,12 +132,12 @@ function App() {
 
       kasware.on("accountsChanged", handleAccountsChanged);
       kasware.on("networkChanged", handleNetworkChanged);
-      kasware.on("krc20BatchTransferChanged", handleKRC20BatchTransferChangedChanged);
+      kasware.on("krc20BatchTransferChanged", handleKRC20BatchTransferChanged);
 
       return () => {
         kasware.removeListener("accountsChanged", handleAccountsChanged);
         kasware.removeListener("networkChanged", handleNetworkChanged);
-        kasware.removeListener("krc20BatchTransferChanged", handleKRC20BatchTransferChangedChanged);
+        kasware.removeListener("krc20BatchTransferChanged", handleKRC20BatchTransferChanged);
       };
     }
 
@@ -187,7 +188,7 @@ function App() {
     },
     {
       key: "commitreveal",
-      label: <div style={{ textAlign: "start" }}>Commit&Reveal</div>,
+      label: <div style={{ textAlign: "start" }}>Commit&Reveal: support KRC20, KNS and KRC721</div>,
       children: <CommitReveal />,
     },
     {
@@ -873,8 +874,8 @@ function BatchTransferKRC20V2({ batchTransferProgress }: { batchTransferProgress
 
     //  the kas balance should be larger than 30 kas in order to start batch transfer.
     const result = await (window as any).kasware.krc20BatchTransferTransaction(list);
-    // the function above should work with handleKRC20BatchTransferChangedChanged event.
-    // krc20BatchTransferTransaction() is called, handleKRC20BatchTransferChangedChanged event will monitor activities and return any latest successful/failed result.
+    // the function above should work with handleKRC20BatchTransferChanged event.
+    // krc20BatchTransferTransaction() is called, handleKRC20BatchTransferChanged event will monitor activities and return any latest successful/failed result.
     setTxid(result);
   };
   return (
@@ -1137,24 +1138,7 @@ function CommitReveal() {
 
   const handleCommit = async () => {
     const network = await (window as any).kasware.getNetwork();
-    let networkId = "testnet-10";
-    switch (network) {
-      case "kaspa_mainnet":
-        networkId = "mainnet";
-        break;
-      case "kaspa_testnet_11":
-        networkId = "testnet-11";
-        break;
-      case "kaspa_testnet_10":
-        networkId = "testnet-10";
-        break;
-      case "kaspa_devnet":
-        networkId = "devnet";
-        break;
-      default:
-        networkId = "testnet-10";
-        break;
-    }
+    const networkId = getKasNetworkId(network);
     const data = {
       p: "krc-20",
       op: "mint",
@@ -1185,24 +1169,7 @@ function CommitReveal() {
   };
   const handleReveal = async () => {
     const network = await (window as any).kasware.getNetwork();
-    let networkId = "testnet-10";
-    switch (network) {
-      case "kaspa_mainnet":
-        networkId = "mainnet";
-        break;
-      case "kaspa_testnet_11":
-        networkId = "testnet-11";
-        break;
-      case "kaspa_testnet_10":
-        networkId = "testnet-10";
-        break;
-      case "kaspa_devnet":
-        networkId = "devnet";
-        break;
-      default:
-        networkId = "testnet-10";
-        break;
-    }
+    const networkId = getKasNetworkId(network);
     const data = {
       p: "krc-20",
       op: "mint",
@@ -1237,24 +1204,7 @@ function CommitReveal() {
     console.log("entries: ", entries);
     const [address] = await (window as any).kasware.getAccounts();
     const network = await (window as any).kasware.getNetwork();
-    let networkId = "testnet-10";
-    switch (network) {
-      case "kaspa_mainnet":
-        networkId = "mainnet";
-        break;
-      case "kaspa_testnet_11":
-        networkId = "testnet-11";
-        break;
-      case "kaspa_testnet_10":
-        networkId = "testnet-10";
-        break;
-      case "kaspa_devnet":
-        networkId = "devnet";
-        break;
-      default:
-        networkId = "testnet-10";
-        break;
-    }
+    let networkId = getKasNetworkId(network);
 
     // const data = {
     //   p: "KRC-20",
@@ -1274,6 +1224,11 @@ function CommitReveal() {
       op: "mint",
       tick: "ware",
     };
+    // const data = {
+    //   p: "krc-721",
+    //   op: "mint",
+    //   tick: "nacho", // ticker symbol 1..10 alphanumeric characters
+    // };
     // const data = {
     //   p: "krc-20",
     //   op: "deploy",
