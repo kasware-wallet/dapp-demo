@@ -2,46 +2,21 @@ import React, { useEffect, useMemo, useRef, useState } from "react";
 import "./App.css";
 import { Button, Card, Row, Input, Radio, CollapseProps, Collapse } from "antd";
 import { getKasNetworkId } from "./util";
-enum TxType {
-  SIGN_TX,
-  SEND_KASPA,
-  SIGN_KRC20_DEPLOY,
-  SIGN_KRC20_MINT,
-  SIGN_KRC20_TRANSFER,
+import { TxType, SighashBiType, TSignMessage, BuildScriptType, IBatchTransferResult } from "./types";
+
+// Extended status for UI progress display (extends plugin's TBatchTransferStatus)
+type TBatchTransferProgressStatus =
+  | "success"
+  | "failed"
+  | "preparing 20%"
+  | "preparing 40%"
+  | "preparing 60%"
+  | "preparing 80%"
+  | "preparing 100%";
+
+interface BatchTransferRes extends Omit<IBatchTransferResult, "status"> {
+  status: TBatchTransferProgressStatus;
 }
-
-interface BatchTransferRes {
-  index?: number;
-  tick?: string;
-  to?: string;
-  amount?: number;
-  status:
-    | "success"
-    | "failed"
-    | "preparing 20%"
-    | "preparing 40%"
-    | "preparing 60%"
-    | "preparing 80%"
-    | "preparing 100%";
-
-  errorMsg?: string;
-  txId?: { commitId: string; revealId: string };
-}
-
-/**
- * Kaspa Sighash types allowed by consensus
- * @category Consensus https://kaspa-mdbook.aspectron.com/transactions/sighashes.html
- */
-enum SighashType {
-  All = 0b00000001, // 1
-  None = 0b00000010, // 2
-  Single = 0b00000100, // 4
-  AllAnyOneCanPay = 0b10000001, // 128 + 1 = 129
-  NoneAnyOneCanPay = 0b10000010, // 128 + 2 = 130
-  SingleAnyOneCanPay = 0b10000100, // 128 + 4 = 132
-}
-
-type TSignMessage = "schnorr" | "ecdsa";
 
 function App() {
   const [kaswareInstalled, setKaswareInstalled] = useState(false);
@@ -502,7 +477,7 @@ function DeployKRC20() {
       jsonStr,
       TxType.SIGN_KRC20_DEPLOY,
       destAddr,
-      priorityFee
+      priorityFee,
     );
     setTxid(txids);
   };
@@ -581,7 +556,7 @@ function MintKRC20() {
       jsonStr,
       TxType.SIGN_KRC20_MINT,
       destAddr,
-      priorityFee
+      priorityFee,
     );
     setTxid(txid);
   };
@@ -638,7 +613,7 @@ function TransferKRC20() {
       jsonStr,
       TxType.SIGN_KRC20_TRANSFER,
       toAddress,
-      priorityFee
+      priorityFee,
     );
     setTxid(txid);
   };
@@ -1069,11 +1044,11 @@ function SignPSKTCard() {
                 signInputs: [
                   {
                     index: 0,
-                    sighashType: SighashType.All,
+                    sighashType: SighashBiType.All,
                   },
                   {
                     index: 1,
-                    sighashType: SighashType.All,
+                    sighashType: SighashBiType.All,
                   },
                 ],
               },
@@ -1093,11 +1068,6 @@ function SignPSKTCard() {
   );
 }
 
-export enum BuildScriptType {
-  KRC20 = "KRC20",
-  KNS = "KNS",
-  KSPR_KRC721 = "KSPR_KRC721",
-}
 function BuildScriptCard() {
   const [script, setScript] = useState("");
   const [p2shAddress, setP2shAddress] = useState("");
@@ -1173,11 +1143,11 @@ function CommitReveal() {
       type: BuildScriptType.KRC20,
       data: jsonStr,
     });
-    const entries = await (window as any).kasware.getUtxoEntries();
+    const [address] = await (window as any).kasware.getAccounts();
+    const entries = await (window as any).kasware.getUtxoEntries(address);
     console.log("entries: ", entries);
     const entries2 = await (window as any).kasware.getUtxoEntries(p2shAddress);
     console.log("p2sh address: ", entries2);
-    const [address] = await (window as any).kasware.getAccounts();
     const outputs = [{ address: p2shAddress, amount: 2.5 }];
     const results = await (window as any).kasware.submitCommit({
       priorityEntries: [],
@@ -1204,11 +1174,11 @@ function CommitReveal() {
       type: BuildScriptType.KRC20,
       data: jsonStr,
     });
-    const entries = await (window as any).kasware.getUtxoEntries();
+    const [address] = await (window as any).kasware.getAccounts();
+    const entries = await (window as any).kasware.getUtxoEntries(address);
     console.log("entries: ", entries);
     const entries2 = await (window as any).kasware.getUtxoEntries(p2shAddress);
     console.log("p2sh address: ", entries2);
-    const [address] = await (window as any).kasware.getAccounts();
 
     const results = await (window as any).kasware.submitReveal({
       priorityEntries: [entries2[0]],
@@ -1224,9 +1194,9 @@ function CommitReveal() {
   };
 
   const handleCommitReveal = async () => {
-    const entries = await (window as any).kasware.getUtxoEntries();
-    console.log("entries: ", entries);
     const [address] = await (window as any).kasware.getAccounts();
+    const entries = await (window as any).kasware.getUtxoEntries(address);
+    console.log("entries: ", entries);
     const network = await (window as any).kasware.getNetwork();
     let networkId = getKasNetworkId(network);
 
