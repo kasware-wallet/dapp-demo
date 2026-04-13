@@ -100,7 +100,7 @@ function App() {
 
   const handleBalanceChanged = (balance: any) => {
     console.log("balance", balance);
-    setNetwork(network);
+    setBalance(balance);
     getBasicInfo();
   };
   const handleKRC20BatchTransferChangedChanged = (ress: BatchTransferRes[]) => {
@@ -111,6 +111,8 @@ function App() {
   };
 
   useEffect(() => {
+    let cleanupFn: (() => void) | undefined;
+
     async function checkKasware() {
       let kasware = (window as any).kasware;
 
@@ -121,7 +123,9 @@ function App() {
 
       if (kasware) {
         setKaswareInstalled(true);
-      } else if (!kasware) return;
+      } else {
+        return;
+      }
 
       kasware.getAccounts().then((accounts: string[]) => {
         handleAccountsChanged(accounts);
@@ -132,7 +136,7 @@ function App() {
       kasware.on("balanceChanged", handleBalanceChanged);
       kasware.on("krc20BatchTransferChanged", handleKRC20BatchTransferChangedChanged);
 
-      return () => {
+      cleanupFn = () => {
         kasware.removeListener("accountsChanged", handleAccountsChanged);
         kasware.removeListener("networkChanged", handleNetworkChanged);
         kasware.removeListener("balanceChanged", handleBalanceChanged);
@@ -141,6 +145,10 @@ function App() {
     }
 
     checkKasware().then();
+
+    return () => {
+      cleanupFn?.();
+    };
   }, []);
 
   if (!kaswareInstalled) {
@@ -249,6 +257,7 @@ function KRC20MarketPlace() {
   // txJsonString is pskt string
   const handleCreateOrder = async () => {
     try {
+      // reference link for list op: https://docs-kasplex.gitbook.io/krc20/technical-overview/krc-20-ops/list
       const listJsonString = '{"p":"krc-20","op":"list","tick":"aaaa","amt":"1000000000"}';
       // const listJsonString2 = '{"p":"krc-20","op":"list","ca":"5d6b2c1cf5a99a7ce00ddc2ca4205afd3ce34e868af622f4229be1d3b45562d2","amt":"1000000000"}';
       const { script: listScript, p2shAddress: listP2shAddress } = await (window as any).kasware.buildScript({
@@ -256,7 +265,7 @@ function KRC20MarketPlace() {
         data: listJsonString,
       });
       console.log("listP2shAddress: ", listP2shAddress);
-
+      // reference link for send op: https://docs-kasplex.gitbook.io/krc20/technical-overview/krc-20-ops/send
       const sendJsonString = '{"p":"krc-20","op":"send","tick":"aaaa"}';
       const { script: sendScript, p2shAddress: sendP2shAddress } = await (window as any).kasware.buildScript({
         type: BuildScriptType.KRC20,
@@ -334,6 +343,8 @@ function KRC20MarketPlace() {
   };
 
   useEffect(() => {
+    let cleanupFn: (() => void) | undefined;
+
     async function checkKasware() {
       let kasware = (window as any).kasware;
       for (let i = 1; i < 10 && !kasware; i += 1) {
@@ -342,11 +353,17 @@ function KRC20MarketPlace() {
       }
       if (!kasware) return;
       kasware.on("transactionReplacementResponse", handleSubmitTransactionReplacementResponse);
-      return () => {
+
+      cleanupFn = () => {
         kasware.removeListener("transactionReplacementResponse", handleSubmitTransactionReplacementResponse);
       };
     }
+
     checkKasware().then();
+
+    return () => {
+      cleanupFn?.();
+    };
   }, []);
   return (
     <Card size="small" title="KRC20 Market Place" style={{ width: 300, margin: 10 }}>
