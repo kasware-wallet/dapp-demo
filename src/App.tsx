@@ -24,7 +24,11 @@ function App() {
   const [accounts, setAccounts] = useState<string[]>([]);
   const [publicKey, setPublicKey] = useState("");
   const [address, setAddress] = useState("");
-  const [balance, setBalance] = useState({
+  const [balance, setBalance] = useState<{
+    confirmed: string | number;
+    unconfirmed: string | number;
+    total: string | number;
+  }>({
     confirmed: 0,
     unconfirmed: 0,
     total: 0,
@@ -33,7 +37,7 @@ function App() {
   const [batchTransferProgress, setBatchTransferProgress] = useState<BatchTransferRes | undefined>(undefined);
 
   const getBasicInfo = async () => {
-    const kasware = (window as any).kasware;
+    const kasware = window.kasware;
     const [address] = await kasware.getAccounts();
     setAddress(address);
 
@@ -41,7 +45,9 @@ function App() {
     setPublicKey(publicKey);
 
     const balance = await kasware.getBalance();
-    setBalance(balance);
+    if (balance && 'total' in balance) {
+      setBalance(balance);
+    }
     const krc20Balances = await kasware.getKRC20Balance();
     console.log("krc20Balances", krc20Balances);
 
@@ -85,11 +91,11 @@ function App() {
 
   useEffect(() => {
     async function checkKasware() {
-      let kasware = (window as any).kasware;
+      let kasware = window.kasware;
 
       for (let i = 1; i < 10 && !kasware; i += 1) {
         await new Promise((resolve) => setTimeout(resolve, 100 * i));
-        kasware = (window as any).kasware;
+        kasware = window.kasware;
       }
 
       if (kasware) {
@@ -120,11 +126,13 @@ function App() {
 
     const fetchBalance = async () => {
       try {
-        const kasware = (window as any).kasware;
+        const kasware = window.kasware;
         if (kasware) {
           const balance = await kasware.getBalance();
           console.log("balance", balance);
-          setBalance(balance);
+          if (balance && 'total' in balance) {
+            setBalance(balance);
+          }
         }
       } catch (error) {
         console.error("Failed to fetch balance:", error);
@@ -214,7 +222,7 @@ function App() {
       </div>
     );
   }
-  const kasware = (window as any).kasware;
+  const kasware = window.kasware;
   return (
     <div className="App">
       <header className="App-header">
@@ -328,7 +336,7 @@ function SignMessageCard() {
            * you can also set the type to TSignMessage.Schnorr or TSignMessage.ECDSA
            *  For noAuxRand parameter details, see: https://github.com/kaspanet/rusty-kaspa/pull/587
            */
-          const signature = await (window as any).kasware.signMessage(message, { type, noAuxRand });
+          const signature = await window.kasware.signMessage(message, { type, noAuxRand });
           setSignature(signature);
         }}
       >
@@ -374,10 +382,10 @@ function VerifyMessageCard({ publicKey }: { publicKey: string }) {
       <Button
         style={{ marginTop: 10 }}
         onClick={async () => {
-          const isVerifiedECDSA = await (window as any).kasware.verifyMessageECDSA(publicKey, message, signature);
+          const isVerifiedECDSA = await window.kasware.verifyMessageECDSA(publicKey, message, signature);
           setIsVerifiedECDSA(isVerifiedECDSA);
 
-          const isVerifiedSchnorr = await (window as any).kasware.verifyMessage(publicKey, message, signature);
+          const isVerifiedSchnorr = await window.kasware.verifyMessage(publicKey, message, signature);
           setIsVerifiedSchnorr(isVerifiedSchnorr);
         }}
       >
@@ -438,7 +446,7 @@ function SendKaspa() {
         style={{ marginTop: 10 }}
         onClick={async () => {
           try {
-            const txid = await (window as any).kasware.sendKaspa(toAddress, kasAmount * 100000000, {
+            const txid = await window.kasware.sendKaspa(toAddress, kasAmount * 100000000, {
               priorityFee: 10000,
               payload,
             });
@@ -473,7 +481,7 @@ function DeployKRC20() {
     // kas unit
     const priorityFee = 0.1;
     const destAddr = "";
-    const txids = await (window as any).kasware.signKRC20Transaction(
+    const txids = await window.kasware.signKRC20Transaction(
       jsonStr,
       TxType.SIGN_KRC20_DEPLOY,
       destAddr,
@@ -552,7 +560,7 @@ function MintKRC20() {
     // kas unit
     const priorityFee = 1.1;
     const destAddr = "";
-    const txid = await (window as any).kasware.signKRC20Transaction(
+    const txid = await window.kasware.signKRC20Transaction(
       jsonStr,
       TxType.SIGN_KRC20_MINT,
       destAddr,
@@ -609,7 +617,7 @@ function TransferKRC20() {
     console.log(jsonStr);
     // kas unit
     const priorityFee = 0.1;
-    const txid = await (window as any).kasware.signKRC20Transaction(
+    const txid = await window.kasware.signKRC20Transaction(
       jsonStr,
       TxType.SIGN_KRC20_TRANSFER,
       toAddress,
@@ -872,7 +880,7 @@ function BatchTransferKRC20V2({ batchTransferProgress }: { batchTransferProgress
     ];
 
     //  the kas balance should be larger than 30 kas in order to start batch transfer.
-    const result = await (window as any).kasware.krc20BatchTransferTransaction(list);
+    const result = await window.kasware.krc20BatchTransferTransaction(list);
     // the function above should work with handleKRC20BatchTransferChanged event.
     // krc20BatchTransferTransaction() is called, handleKRC20BatchTransferChanged event will monitor activities and return any latest successful/failed result.
     setTxid(result);
@@ -923,7 +931,7 @@ function BatchTransferKRC20V2({ batchTransferProgress }: { batchTransferProgress
       <Button
         style={{ marginTop: 10 }}
         onClick={async () => {
-          await (window as any).kasware.cancelKRC20BatchTransfer();
+          await window.kasware.cancelKRC20BatchTransfer();
         }}
       >
         Cancel
@@ -1038,7 +1046,7 @@ function SignPSKTCard() {
         style={{ marginTop: 10 }}
         onClick={async () => {
           try {
-            const signature = await (window as any).kasware.signPskt({
+            const signature = await window.kasware.signPskt({
               txJsonString: pskt,
               options: {
                 signInputs: [
@@ -1055,7 +1063,7 @@ function SignPSKTCard() {
             });
             console.log("signed tx", signature);
             setSignature(signature);
-            const txId = await (window as any).kasware.pushTx(signature);
+            const txId = await window.kasware.pushTx(signature);
             console.log("txId", txId);
           } catch (e) {
             setSignature((e as any).message);
@@ -1093,7 +1101,7 @@ function BuildScriptCard() {
     };
 
     const data = JSON.stringify(json, null, 0);
-    const { script, p2shAddress } = await (window as any).kasware.buildScript({
+    const { script, p2shAddress } = await window.kasware.buildScript({
       type: BuildScriptType.KRC20,
       data: data,
     });
@@ -1131,7 +1139,7 @@ function CommitReveal() {
   const [entries, setEntries] = useState([]);
 
   const handleCommit = async () => {
-    const network = await (window as any).kasware.getNetwork();
+    const network = await window.kasware.getNetwork();
     const networkId = getKasNetworkId(network);
     const data = {
       p: "krc-20",
@@ -1139,17 +1147,17 @@ function CommitReveal() {
       tick: "ware",
     };
     const jsonStr = JSON.stringify(data, null, 0);
-    const { script, p2shAddress } = await (window as any).kasware.buildScript({
+    const { script, p2shAddress } = await window.kasware.buildScript({
       type: BuildScriptType.KRC20,
       data: jsonStr,
     });
-    const [address] = await (window as any).kasware.getAccounts();
-    const entries = await (window as any).kasware.getUtxoEntries(address);
+    const [address] = await window.kasware.getAccounts();
+    const entries = await window.kasware.getUtxoEntries(address);
     console.log("entries: ", entries);
-    const entries2 = await (window as any).kasware.getUtxoEntries(p2shAddress);
+    const entries2 = await window.kasware.getUtxoEntries(p2shAddress);
     console.log("p2sh address: ", entries2);
     const outputs = [{ address: p2shAddress, amount: 2.5 }];
-    const results = await (window as any).kasware.submitCommit({
+    const results = await window.kasware.submitCommit({
       priorityEntries: [],
       entries: entries,
       outputs,
@@ -1162,7 +1170,7 @@ function CommitReveal() {
     return results;
   };
   const handleReveal = async () => {
-    const network = await (window as any).kasware.getNetwork();
+    const network = await window.kasware.getNetwork();
     const networkId = getKasNetworkId(network);
     const data = {
       p: "krc-20",
@@ -1170,17 +1178,17 @@ function CommitReveal() {
       tick: "ware",
     };
     const jsonStr = JSON.stringify(data, null, 0);
-    const { script, p2shAddress } = await (window as any).kasware.buildScript({
+    const { script, p2shAddress } = await window.kasware.buildScript({
       type: BuildScriptType.KRC20,
       data: jsonStr,
     });
-    const [address] = await (window as any).kasware.getAccounts();
-    const entries = await (window as any).kasware.getUtxoEntries(address);
+    const [address] = await window.kasware.getAccounts();
+    const entries = await window.kasware.getUtxoEntries(address);
     console.log("entries: ", entries);
-    const entries2 = await (window as any).kasware.getUtxoEntries(p2shAddress);
+    const entries2 = await window.kasware.getUtxoEntries(p2shAddress);
     console.log("p2sh address: ", entries2);
 
-    const results = await (window as any).kasware.submitReveal({
+    const results = await window.kasware.submitReveal({
       priorityEntries: [entries2[0]],
       entries,
       outputs: [],
@@ -1194,10 +1202,10 @@ function CommitReveal() {
   };
 
   const handleCommitReveal = async () => {
-    const [address] = await (window as any).kasware.getAccounts();
-    const entries = await (window as any).kasware.getUtxoEntries(address);
+    const [address] = await window.kasware.getAccounts();
+    const entries = await window.kasware.getUtxoEntries(address);
     console.log("entries: ", entries);
-    const network = await (window as any).kasware.getNetwork();
+    const network = await window.kasware.getNetwork();
     let networkId = getKasNetworkId(network);
 
     // const data = {
@@ -1244,7 +1252,7 @@ function CommitReveal() {
     //   to: "kaspatest:qp2vyqkuanrqn38362wa5ja93e3se4cv3zqa8yhjalrj24n3g2t52kgq32m8c",
     // };
     const jsonStr = JSON.stringify(data, null, 0);
-    const { script, p2shAddress } = await (window as any).kasware.buildScript({
+    const { script, p2shAddress } = await window.kasware.buildScript({
       type: BuildScriptType.KRC20,
       data: jsonStr,
     });
@@ -1273,7 +1281,7 @@ function CommitReveal() {
       priorityFee: revealPriorityFee, // unit is kas
     };
 
-    const results = await (window as any).kasware.submitCommitReveal(commit, reveal, script, networkId);
+    const results = await window.kasware.submitCommitReveal(commit, reveal, script, networkId);
     console.log("results: ", results);
     return results;
   };
