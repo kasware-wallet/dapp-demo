@@ -425,7 +425,7 @@ function SendKaspa() {
         <Input
           defaultValue={kasAmount}
           onChange={(e) => {
-            setKasAmount(parseInt(e.target.value));
+            setKasAmount(parseFloat(e.target.value) || 0);
           }}
         ></Input>
       </div>
@@ -512,7 +512,7 @@ function DeployKRC20() {
         <Input
           defaultValue={supply}
           onChange={(e) => {
-            setSupply(parseInt(e.target.value));
+            setSupply(parseFloat(e.target.value) || 0);
           }}
         ></Input>
       </div>
@@ -521,7 +521,7 @@ function DeployKRC20() {
         <Input
           defaultValue={lim}
           onChange={(e) => {
-            setLim(parseInt(e.target.value));
+            setLim(parseFloat(e.target.value) || 0);
           }}
         ></Input>
       </div>
