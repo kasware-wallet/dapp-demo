@@ -1164,6 +1164,9 @@ function CommitReveal() {
   const [entries, setEntries] = useState([]);
   const [dataJson, setDataJson] = useState('{"p":"krc-20","op":"mint","tick":"ware"}');
   const [revealPriorityFee, setRevealPriorityFee] = useState(1);
+  const [commitResult, setCommitResult] = useState<string>("");
+  const [revealResult, setRevealResult] = useState<string>("");
+  const [commitRevealResult, setCommitRevealResult] = useState<string>("");
 
   const parseDataJson = () => {
     try {
@@ -1200,6 +1203,7 @@ function CommitReveal() {
       script,
     });
     console.log("results: ", results);
+    setCommitResult(JSON.stringify(results, null, 2));
     return results;
   };
   const handleReveal = async () => {
@@ -1227,6 +1231,7 @@ function CommitReveal() {
       script,
     });
     console.log("results: ", results);
+    setRevealResult(JSON.stringify(results, null, 2));
     return results;
   };
 
@@ -1307,6 +1312,7 @@ function CommitReveal() {
 
     const results = await window.kasware.submitCommitReveal(commit, reveal, script, networkId);
     console.log("results: ", results);
+    setCommitRevealResult(JSON.stringify(results, null, 2));
     return results;
   };
 
@@ -1330,13 +1336,31 @@ function CommitReveal() {
           style={{ maxWidth: 300 }}
         />
       </div>
+      {commitResult && (
+        <div style={{ textAlign: "left", marginTop: 10 }}>
+          <div style={{ fontWeight: "bold" }}>Commit Result:</div>
+          <pre style={{ wordWrap: "break-word", whiteSpace: "pre-wrap", maxHeight: 200, overflow: "auto", background: "#f5f5f5", padding: 8, borderRadius: 4 }}>{commitResult}</pre>
+        </div>
+      )}
+      {revealResult && (
+        <div style={{ textAlign: "left", marginTop: 10 }}>
+          <div style={{ fontWeight: "bold" }}>Reveal Result:</div>
+          <pre style={{ wordWrap: "break-word", whiteSpace: "pre-wrap", maxHeight: 200, overflow: "auto", background: "#f5f5f5", padding: 8, borderRadius: 4 }}>{revealResult}</pre>
+        </div>
+      )}
+      {commitRevealResult && (
+        <div style={{ textAlign: "left", marginTop: 10 }}>
+          <div style={{ fontWeight: "bold" }}>Commit & Reveal Result:</div>
+          <pre style={{ wordWrap: "break-word", whiteSpace: "pre-wrap", maxHeight: 200, overflow: "auto", background: "#f5f5f5", padding: 8, borderRadius: 4 }}>{commitRevealResult}</pre>
+        </div>
+      )}
       <Button
         style={{ marginTop: 10 }}
         onClick={async () => {
           try {
             await handleCommit();
           } catch (e) {
-            setTxid((e as any).message);
+            setCommitResult((e as any).message);
           }
         }}
       >
@@ -1345,7 +1369,11 @@ function CommitReveal() {
       <Button
         style={{ marginTop: 10 }}
         onClick={async () => {
-          await handleReveal();
+          try {
+            await handleReveal();
+          } catch (e) {
+            setRevealResult((e as any).message);
+          }
         }}
       >
         Reveal
@@ -1353,7 +1381,11 @@ function CommitReveal() {
       <Button
         style={{ marginTop: 10 }}
         onClick={async () => {
-          await handleCommitReveal();
+          try {
+            await handleCommitReveal();
+          } catch (e) {
+            setCommitRevealResult((e as any).message);
+          }
         }}
       >
         Commit and Reveal
