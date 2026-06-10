@@ -9,12 +9,6 @@ enum TxType {
   SIGN_KRC20_TRANSFER,
 }
 
-interface ICancelKRC20Order {
-  krc20Tick: string;
-  // txJsonString or sendCommitTxId must be set
-  txJsonString?: string;
-  sendCommitTxId?: string;
-}
 
 interface BatchTransferRes {
   index?: number;
@@ -51,7 +45,6 @@ function App() {
     total: 0,
   });
   const [network, setNetwork] = useState("kaspa_mainnet");
-  const [batchTransferProgress, setBatchTransferProgress] = useState<BatchTransferRes | undefined>(undefined);
 
   const getBasicInfo = async () => {
     const kasware = (window as any).kasware;
@@ -103,12 +96,6 @@ function App() {
     setBalance(balance);
     getBasicInfo();
   };
-  const handleKRC20BatchTransferChangedChanged = (ress: BatchTransferRes[]) => {
-    ress.forEach((res) => {
-      console.log("result", res.status, res?.index, res?.txId?.revealId, res?.errorMsg);
-      setBatchTransferProgress(res);
-    });
-  };
 
   useEffect(() => {
     let cleanupFn: (() => void) | undefined;
@@ -134,13 +121,11 @@ function App() {
       kasware.on("accountsChanged", handleAccountsChanged);
       kasware.on("networkChanged", handleNetworkChanged);
       kasware.on("balanceChanged", handleBalanceChanged);
-      kasware.on("krc20BatchTransferChanged", handleKRC20BatchTransferChangedChanged);
 
       cleanupFn = () => {
         kasware.removeListener("accountsChanged", handleAccountsChanged);
         kasware.removeListener("networkChanged", handleNetworkChanged);
         kasware.removeListener("balanceChanged", handleBalanceChanged);
-        kasware.removeListener("krc20BatchTransferChanged", handleKRC20BatchTransferChangedChanged);
       };
     }
 
@@ -253,12 +238,16 @@ function KRC20MarketPlace() {
   const [cancelTxid, setCancelTxid] = useState("");
   const [sendCommitTxId, setSendCommitTxId] = useState("");
   const [txJsonString, setTxJsonString] = useState("");
-  const [tick, setTick] = useState("ghoad");
+  const [tick, setTick] = useState("kasa");
+  const [krc20Amount, setKrc20Amount] = useState(20);
+  const [kasAmount, setKasAmount] = useState(10);
+  const [decimals, setDecimals] = useState(9);
   // txJsonString is pskt string
   const handleCreateOrder = async () => {
     try {
       // reference link for list op: https://docs-kasplex.gitbook.io/krc20/technical-overview/krc-20-ops/list
-      const listJsonString = '{"p":"krc-20","op":"list","tick":"aaaa","amt":"1000000000"}';
+      const amt = BigInt(krc20Amount) * 10n ** BigInt(decimals);
+      const listJsonString = `{"p":"krc-20","op":"list","tick":"${tick}","amt":"${amt}"}`;
       // const listJsonString2 = '{"p":"krc-20","op":"list","ca":"5d6b2c1cf5a99a7ce00ddc2ca4205afd3ce34e868af622f4229be1d3b45562d2","amt":"1000000000"}';
       const { script: listScript, p2shAddress: listP2shAddress } = await (window as any).kasware.buildScript({
         type: BuildScriptType.KRC20,
@@ -266,7 +255,7 @@ function KRC20MarketPlace() {
       });
       console.log("listP2shAddress: ", listP2shAddress);
       // reference link for send op: https://docs-kasplex.gitbook.io/krc20/technical-overview/krc-20-ops/send
-      const sendJsonString = '{"p":"krc-20","op":"send","tick":"aaaa"}';
+      const sendJsonString = `{"p":"krc-20","op":"send","tick":"${tick}"}`;
       const { script: sendScript, p2shAddress: sendP2shAddress } = await (window as any).kasware.buildScript({
         type: BuildScriptType.KRC20,
         data: sendJsonString,
@@ -279,8 +268,8 @@ function KRC20MarketPlace() {
 
       const { txJsonString, sendCommitTxId } = await (window as any).kasware.createKRC20Order({
         krc20Tick: tick,
-        krc20Amount: 10,
-        kasAmount: 490,
+        krc20Amount: krc20Amount,
+        kasAmount: kasAmount,
         // // you can use psktExtraOutput to create a service fee or other things
         // psktExtraOutput: [
         //   { address: "kaspatest:qrpygfgeq45h68wz5pk4rtay02w7fwlhax09x4rsqceqq6s3mz6uctlh3a695", amount: 0.2 },
@@ -302,9 +291,9 @@ function KRC20MarketPlace() {
       const txid = await (window as any).kasware.buyKRC20Token({
         txJsonString,
         // you can use extraOutput to create a service fee or other things
-        extraOutput: [
-          { address: "kaspatest:qra06rlekd5jsqzc29zguvvrkq8qflhdpsg3uyqw3xvth5ljf5ujs7l2q92ma", amount: 0.2 },
-        ],
+        // extraOutput: [
+        //   { address: "kaspatest:qra06rlekd5jsqzc29zguvvrkq8qflhdpsg3uyqw3xvth5ljf5ujs7l2q92ma", amount: 0.2 },
+        // ],
         // extraOutput: [],
         priorityFee: 0,
       });
@@ -369,28 +358,44 @@ function KRC20MarketPlace() {
     <Card size="small" title="KRC20 Market Place" style={{ width: 300, margin: 10 }}>
       {sendCommitTxId !== undefined && sendCommitTxId.length > 0 && (
         <div style={{ textAlign: "left", marginTop: 10 }}>
-          <div style={{ fontWeight: "bold" }}>data:</div>
+          <div style={{ fontWeight: "bold" }}>sendCommitTxId:</div>
           <div style={{ wordWrap: "break-word" }}>{sendCommitTxId}</div>
         </div>
       )}
       {txJsonString !== undefined && txJsonString.length > 0 && (
         <div style={{ textAlign: "left", marginTop: 10 }}>
-          <div style={{ fontWeight: "bold" }}>pskt:</div>
+          <div style={{ fontWeight: "bold" }}>txJsonString:</div>
           <div style={{ wordWrap: "break-word" }}>{txJsonString}</div>
         </div>
       )}
       {buyTxid !== undefined && buyTxid.length > 0 && (
         <div style={{ textAlign: "left", marginTop: 10 }}>
-          <div style={{ fontWeight: "bold" }}>data:</div>
+          <div style={{ fontWeight: "bold" }}>buyTxid:</div>
           <div style={{ wordWrap: "break-word" }}>{buyTxid}</div>
         </div>
       )}
       {cancelTxid !== undefined && cancelTxid.length > 0 && (
         <div style={{ textAlign: "left", marginTop: 10 }}>
-          <div style={{ fontWeight: "bold" }}>data:</div>
+          <div style={{ fontWeight: "bold" }}>cancelTxid:</div>
           <div style={{ wordWrap: "break-word" }}>{cancelTxid}</div>
         </div>
       )}
+      <div style={{ textAlign: "left", marginTop: 10 }}>
+        <div style={{ fontWeight: "bold" }}>Tick:</div>
+        <Input value={tick} onChange={(e) => setTick(e.target.value)} placeholder="Enter tick" />
+      </div>
+      <div style={{ textAlign: "left", marginTop: 10 }}>
+        <div style={{ fontWeight: "bold" }}>KRC20 Amount:</div>
+        <Input type="number" value={krc20Amount} onChange={(e) => setKrc20Amount(Math.floor(Number(e.target.value)))} placeholder="Enter krc20 amount" />
+      </div>
+      <div style={{ textAlign: "left", marginTop: 10 }}>
+        <div style={{ fontWeight: "bold" }}>KAS Amount:</div>
+        <Input type="number" value={kasAmount} onChange={(e) => setKasAmount(Number(e.target.value))} placeholder="Enter kas amount" />
+      </div>
+      <div style={{ textAlign: "left", marginTop: 10 }}>
+        <div style={{ fontWeight: "bold" }}>Decimals:</div>
+        <Input type="number" value={decimals} onChange={(e) => setDecimals(Math.floor(Number(e.target.value)))} placeholder="Enter decimals" />
+      </div>
       <Button
         style={{ marginTop: 10 }}
         onClick={async () => {
