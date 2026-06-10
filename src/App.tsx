@@ -1,6 +1,6 @@
 import React, { useEffect, useMemo, useRef, useState } from "react";
 import "./App.css";
-import { Button, Card, Row, Input, Radio, CollapseProps, Collapse } from "antd";
+import { Button, Card, Row, Input, Radio, CollapseProps, Collapse, message } from "antd";
 import { getKasNetworkId } from "./util";
 import { TxType, SighashBiType, TSignMessage, BuildScriptType, IBatchTransferResult } from "./types";
 
@@ -676,204 +676,210 @@ function TransferKRC20() {
 
 function BatchTransferKRC20V2({ batchTransferProgress }: { batchTransferProgress: BatchTransferRes | undefined }) {
   const [txid, setTxid] = useState("");
+  const [tick, setTick] = useState("kasa");
+  const [dec, setDec] = useState("9");
 
   const handleBatchTransfer2 = async () => {
+    if (!tick.trim()) {
+      message.error("tick cannot be empty");
+      return;
+    }
     let list = [
       {
-        tick: "decimn",
-        dec: "9",
+        tick,
+        dec,
         to: "kaspatest:qz9dvce5d92czd6t6msm5km3p5m9dyxh5av9xkzjl6pz8hhvc4q7wqg8njjyp",
         amount: 0.111111,
       },
       {
-        tick: "tesla",
-        dec: "8",
+        tick,
+        dec,
         to: "kaspatest:qz45kwyswwpsedqqv3lm3hq3de4c5uwp0cwqnwn74medm4uxzmesvksw9fuyx",
         amount: 0.2,
       },
       {
-        tick: "tesla",
-        dec: "8",
+        tick,
+        dec,
         to: "kaspatest:qz45kwyswwpsedqqv3lm3hq3de4c5uwp0cwqnwn74medm4uxzmesvksw9fuyx",
         amount: 0.3,
       },
       {
-        tick: "tesla",
-        dec: "8",
+        tick,
+        dec,
         to: "kaspatest:qz45kwyswwpsedqqv3lm3hq3de4c5uwp0cwqnwn74medm4uxzmesvksw9fuyx",
         amount: 0.4,
       },
       {
-        tick: "tesla",
-        dec: "8",
+        tick,
+        dec,
         to: "kaspatest:qz45kwyswwpsedqqv3lm3hq3de4c5uwp0cwqnwn74medm4uxzmesvksw9fuyx",
         amount: 0.5,
       },
       {
-        tick: "tesla",
-        dec: "8",
+        tick,
+        dec,
         to: "kaspatest:qz45kwyswwpsedqqv3lm3hq3de4c5uwp0cwqnwn74medm4uxzmesvksw9fuyx",
         amount: 0.6,
       },
       {
-        tick: "tesla",
-        dec: "8",
+        tick,
+        dec,
         to: "kaspatest:qrpygfgeq45h68wz5pk4rtay02w7fwlhax09x4rsqceqq6s3mz6uctlh3a695",
         amount: 0.7,
       },
       {
-        tick: "tesla",
-        dec: "8",
+        tick,
+        dec,
         to: "kaspatest:qz45kwyswwpsedqqv3lm3hq3de4c5uwp0cwqnwn74medm4uxzmesvksw9fuyx",
         amount: 0.8,
       },
       {
-        tick: "tesla",
-        dec: "8",
+        tick,
+        dec,
         to: "kaspatest:qz45kwyswwpsedqqv3lm3hq3de4c5uwp0cwqnwn74medm4uxzmesvksw9fuyx",
         amount: 0.9,
       },
       {
-        tick: "tesla",
-        dec: "8",
+        tick,
+        dec,
         to: "kaspatest:qz45kwyswwpsedqqv3lm3hq3de4c5uwp0cwqnwn74medm4uxzmesvksw9fuyx",
         amount: 1,
       },
       {
-        tick: "tesla",
-        dec: "8",
+        tick,
+        dec,
         to: "kaspatest:qz45kwyswwpsedqqv3lm3hq3de4c5uwp0cwqnwn74medm4uxzmesvksw9fuyx",
         amount: 1.1,
       },
       {
-        tick: "tesla",
-        dec: "8",
+        tick,
+        dec,
         to: "kaspatest:qz45kwyswwpsedqqv3lm3hq3de4c5uwp0cwqnwn74medm4uxzmesvksw9fuyx",
         amount: 1.2,
       },
       {
-        tick: "tesla",
-        dec: "8",
+        tick,
+        dec,
         to: "kaspatest:qz45kwyswwpsedqqv3lm3hq3de4c5uwp0cwqnwn74medm4uxzmesvksw9fuyx",
         amount: 1.3,
       },
       {
-        tick: "tesla",
-        dec: "8",
+        tick,
+        dec,
         to: "kaspatest:qz45kwyswwpsedqqv3lm3hq3de4c5uwp0cwqnwn74medm4uxzmesvksw9fuyx",
         amount: 1.4,
       },
       {
-        tick: "tesla",
-        dec: "8",
+        tick,
+        dec,
         to: "kaspatest:qz45kwyswwpsedqqv3lm3hq3de4c5uwp0cwqnwn74medm4uxzmesvksw9fuyx",
         amount: 1.5,
       },
       {
-        tick: "tesla",
-        dec: "8",
+        tick,
+        dec,
         to: "kaspatest:qz45kwyswwpsedqqv3lm3hq3de4c5uwp0cwqnwn74medm4uxzmesvksw9fuyx",
         amount: 1.6,
       },
       {
-        tick: "tesla",
-        dec: "8",
+        tick,
+        dec,
         to: "kaspatest:qz45kwyswwpsedqqv3lm3hq3de4c5uwp0cwqnwn74medm4uxzmesvksw9fuyx",
         amount: 1.7,
       },
       {
-        tick: "tesla",
-        dec: "8",
+        tick,
+        dec,
         to: "kaspatest:qz45kwyswwpsedqqv3lm3hq3de4c5uwp0cwqnwn74medm4uxzmesvksw9fuyx",
         amount: 1.8,
       },
       {
-        tick: "tesla",
-        dec: "8",
+        tick,
+        dec,
         to: "kaspatest:qz45kwyswwpsedqqv3lm3hq3de4c5uwp0cwqnwn74medm4uxzmesvksw9fuyx",
         amount: 1.9,
       },
       {
-        tick: "tesla",
-        dec: "8",
+        tick,
+        dec,
         to: "kaspatest:qz45kwyswwpsedqqv3lm3hq3de4c5uwp0cwqnwn74medm4uxzmesvksw9fuyx",
         amount: 2,
       },
       {
-        tick: "tesla",
-        dec: "8",
+        tick,
+        dec,
         to: "kaspatest:qz45kwyswwpsedqqv3lm3hq3de4c5uwp0cwqnwn74medm4uxzmesvksw9fuyx",
         amount: 2.1,
       },
       {
-        tick: "tesla",
-        dec: "8",
+        tick,
+        dec,
         to: "kaspatest:qz45kwyswwpsedqqv3lm3hq3de4c5uwp0cwqnwn74medm4uxzmesvksw9fuyx",
         amount: 2.2,
       },
       {
-        tick: "tesla",
-        dec: "8",
+        tick,
+        dec,
         to: "kaspatest:qz45kwyswwpsedqqv3lm3hq3de4c5uwp0cwqnwn74medm4uxzmesvksw9fuyx",
         amount: 2.3,
       },
       {
-        tick: "tesla",
-        dec: "8",
+        tick,
+        dec,
         to: "kaspatest:qz45kwyswwpsedqqv3lm3hq3de4c5uwp0cwqnwn74medm4uxzmesvksw9fuyx",
         amount: 2.4,
       },
       {
-        tick: "tesla",
-        dec: "8",
+        tick,
+        dec,
         to: "kaspatest:qz45kwyswwpsedqqv3lm3hq3de4c5uwp0cwqnwn74medm4uxzmesvksw9fuyx",
         amount: 2.5,
       },
       {
-        tick: "tesla",
-        dec: "8",
+        tick,
+        dec,
         to: "kaspatest:qz45kwyswwpsedqqv3lm3hq3de4c5uwp0cwqnwn74medm4uxzmesvksw9fuyx",
         amount: 2.6,
       },
       {
-        tick: "tesla",
-        dec: "8",
+        tick,
+        dec,
         to: "kaspatest:qz45kwyswwpsedqqv3lm3hq3de4c5uwp0cwqnwn74medm4uxzmesvksw9fuyx",
         amount: 2.7,
       },
       {
-        tick: "tesla",
-        dec: "8",
+        tick,
+        dec,
         to: "kaspatest:qz45kwyswwpsedqqv3lm3hq3de4c5uwp0cwqnwn74medm4uxzmesvksw9fuyx",
         amount: 2.8,
       },
       {
-        tick: "tesla",
-        dec: "8",
+        tick,
+        dec,
         to: "kaspatest:qrr4vus08lgqvt8assshjguvnatrpqf43k4as2wmv8frwf5rz34eg63a8mcx0",
         amount: 2.9,
       },
       {
-        tick: "tesla",
-        dec: "8",
+        tick,
+        dec,
         to: "kaspatest:qrr4vus08lgqvt8assshjguvnatrpqf43k4as2wmv8frwf5rz34eg63a8mcx0",
         amount: 3,
       },
       {
-        tick: "tesla",
-        dec: "8",
+        tick,
+        dec,
         to: "kaspatest:qrr4vus08lgqvt8assshjguvnatrpqf43k4as2wmv8frwf5rz34eg63a8mcx0",
         amount: 3.1,
       },
       {
-        tick: "tesla",
-        dec: "8",
+        tick,
+        dec,
         to: "kaspatest:qrjsftdvrxhy0assk30hv5l40ejydfcskdl4z4ms4m4dg4e6e2fhgmav6vh97",
         amount: 3.2,
       },
       {
-        tick: "tesla",
-        dec: "8",
+        tick,
+        dec,
         to: "kaspatest:qra06rlekd5jsqzc29zguvvrkq8qflhdpsg3uyqw3xvth5ljf5ujs7l2q92ma",
         amount: 3.3,
       },
@@ -887,6 +893,24 @@ function BatchTransferKRC20V2({ batchTransferProgress }: { batchTransferProgress
   };
   return (
     <Card size="small" title="Batch Transfer KRC20 V2" style={{ margin: 10, maxWidth: 600 }}>
+      <div style={{ textAlign: "left", marginTop: 10 }}>
+        <div style={{ fontWeight: "bold" }}>tick:</div>
+        <Input
+          value={tick}
+          onChange={(e) => setTick(e.target.value)}
+          placeholder="Enter tick (e.g. kasa)"
+          style={{ maxWidth: 300 }}
+        />
+      </div>
+      <div style={{ textAlign: "left", marginTop: 10 }}>
+        <div style={{ fontWeight: "bold" }}>dec:</div>
+        <Input
+          value={dec}
+          onChange={(e) => setDec(e.target.value)}
+          placeholder="Enter dec (e.g. 9)"
+          style={{ maxWidth: 300 }}
+        />
+      </div>
       <div style={{ textAlign: "left", marginTop: 10 }}>
         <div style={{ fontWeight: "bold" }}>status:</div>
         <div style={{ wordWrap: "break-word" }}>{batchTransferProgress?.status}</div>
@@ -918,6 +942,7 @@ function BatchTransferKRC20V2({ batchTransferProgress }: { batchTransferProgress
 
       <Button
         style={{ marginTop: 10 }}
+        disabled={!tick.trim()}
         onClick={async () => {
           try {
             await handleBatchTransfer2();
@@ -1137,15 +1162,23 @@ function BuildScriptCard() {
 function CommitReveal() {
   const [txid, setTxid] = useState("");
   const [entries, setEntries] = useState([]);
+  const [dataJson, setDataJson] = useState('{"p":"krc-20","op":"mint","tick":"ware"}');
+  const [revealPriorityFee, setRevealPriorityFee] = useState(1);
+
+  const parseDataJson = () => {
+    try {
+      return JSON.parse(dataJson);
+    } catch {
+      message.error("Invalid JSON in data field");
+      return null;
+    }
+  };
 
   const handleCommit = async () => {
     const network = await window.kasware.getNetwork();
     const networkId = getKasNetworkId(network);
-    const data = {
-      p: "krc-20",
-      op: "mint",
-      tick: "ware",
-    };
+    const data = parseDataJson();
+    if (!data) return;
     const jsonStr = JSON.stringify(data, null, 0);
     const { script, p2shAddress } = await window.kasware.buildScript({
       type: BuildScriptType.KRC20,
@@ -1156,7 +1189,7 @@ function CommitReveal() {
     console.log("entries: ", entries);
     const entries2 = await window.kasware.getUtxoEntries(p2shAddress);
     console.log("p2sh address: ", entries2);
-    const outputs = [{ address: p2shAddress, amount: 2.5 }];
+    const outputs = [{ address: p2shAddress, amount: 2.5 + revealPriorityFee }];
     const results = await window.kasware.submitCommit({
       priorityEntries: [],
       entries: entries,
@@ -1172,11 +1205,8 @@ function CommitReveal() {
   const handleReveal = async () => {
     const network = await window.kasware.getNetwork();
     const networkId = getKasNetworkId(network);
-    const data = {
-      p: "krc-20",
-      op: "mint",
-      tick: "ware",
-    };
+    const data = parseDataJson();
+    if (!data) return;
     const jsonStr = JSON.stringify(data, null, 0);
     const { script, p2shAddress } = await window.kasware.buildScript({
       type: BuildScriptType.KRC20,
@@ -1187,13 +1217,12 @@ function CommitReveal() {
     console.log("entries: ", entries);
     const entries2 = await window.kasware.getUtxoEntries(p2shAddress);
     console.log("p2sh address: ", entries2);
-
     const results = await window.kasware.submitReveal({
       priorityEntries: [entries2[0]],
       entries,
       outputs: [],
       changeAddress: address,
-      priorityFee: 0,
+      priorityFee: revealPriorityFee,
       networkId,
       script,
     });
@@ -1221,11 +1250,8 @@ function CommitReveal() {
     //   id: "fb70ef0725ac6e5d4d70bcab94eb6a66a1835516ffba59ee7b6a7ae1a9110a5ai0",
     //   to: "kaspatest:qp2vyqkuanrqn38362wa5ja93e3se4cv3zqa8yhjalrj24n3g2t52kgq32m8c",
     // };
-    const data = {
-      p: "krc-20",
-      op: "mint",
-      tick: "ware",
-    };
+    const data = parseDataJson();
+    if (!data) return;
     // const data = {
     //   p: "krc-721",
     //   op: "mint",
@@ -1260,14 +1286,12 @@ function CommitReveal() {
     //   "203d47c7f78eca297598aceeb60009aba381cc39e1f46601bbcbade77df10c9a5fac0063046b737072514c68b9000461760161631a0003173b616c54aef33e76972c08b8ac19221cb6e7d2fa4054af436173584086f6d618cc35d422287f1aede1435fbfd327309909b46db80944900963af863569f6a2011ab0436194cb793da6484c7b775ef57590cabd49bca17623d3285d15004c8a7b2270223a226b72632d373231222c226f70223a227472616e73666572222c22746f6b656e4964223a2233343933222c22746f223a226b617370613a71706c6676776e74367977776a7a37366433333538616e68306b75796d6d616d667238656338363930377270666a79677a703065783464323833713364222c227469636b223a224e4143484f227d68";
     // const p2shAddress = "kaspa:qplfvwnt6ywwjz76d3358anh0kuymmamfr8ec86907rpfjygzp0ex4d283q3d";
     console.log("script", script);
-    const commitPriorityFee = 0;
-    const revealPriorityFee = 0;
     const commit = {
       priorityEntries: [],
       entries,
-      outputs: [{ address: p2shAddress, amount: 2.5 + commitPriorityFee + revealPriorityFee }],
+      outputs: [{ address: p2shAddress, amount: 2.5 + revealPriorityFee }],
       changeAddress: address,
-      priorityFee: commitPriorityFee, // unit is kas
+      priorityFee: 0,
     };
     // const revenueAddress = "kaspatest:qqryrzckeeyn2m6hlazx0p0qjjdnk909x4glzs4scqlqsrdfn5k2q4n495sea";
     const revenueAddress = "";
@@ -1288,6 +1312,24 @@ function CommitReveal() {
 
   return (
     <Card size="small" title="Commit & Reveal" style={{ margin: 10, maxWidth: 600 }}>
+      <div style={{ textAlign: "left", marginTop: 10 }}>
+        <div style={{ fontWeight: "bold" }}>data (JSON):</div>
+        <Input.TextArea
+          value={dataJson}
+          onChange={(e) => setDataJson(e.target.value)}
+          rows={4}
+          style={{ maxWidth: 500, fontFamily: "monospace" }}
+        />
+      </div>
+      <div style={{ textAlign: "left", marginTop: 10 }}>
+        <div style={{ fontWeight: "bold" }}>revealPriorityFee:</div>
+        <Input
+          type="number"
+          value={revealPriorityFee}
+          onChange={(e) => setRevealPriorityFee(Number(e.target.value))}
+          style={{ maxWidth: 300 }}
+        />
+      </div>
       <Button
         style={{ marginTop: 10 }}
         onClick={async () => {
