@@ -1017,6 +1017,7 @@ function SignPSKTCard() {
       {
           "index": 0,
           "sequence": "0",
+          "computeBudget": 0,
           "sigOpCount": 1,
           "signatureScript": "",
           "transactionId": "6bc6a81a50e8d62a0c96ae6ae9f03dc79c251e9fde5b4fd3ce9ee65ddcadf0bd",
