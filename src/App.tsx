@@ -226,7 +226,7 @@ function App() {
   return (
     <div className="App">
       <header className="App-header">
-        <p>Kasware Wallet Demo</p>
+        <p>Kasware Wallet Dapp Demo</p>
 
         {connected ? (
           <div
@@ -302,6 +302,19 @@ function App() {
             >
               Connect Kasware Wallet
             </Button>
+            <div style={{ marginTop: 16 }}>
+              <span style={{ fontSize: 14, color: '#888' }}>
+                Don't have Kasware?{' '}
+                <a
+                  href="https://chromewebstore.google.com/detail/kasware-wallet/hklhheigdmpoolooomdihmhlpjjdbklf?hl=en-US&utm_source=ext_sidebar"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  style={{ color: '#61dafb', textDecoration: 'underline' }}
+                >
+                  Download Extension
+                </a>
+              </span>
+            </div>
           </div>
         )}
       </header>
